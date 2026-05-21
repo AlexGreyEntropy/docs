@@ -1,0 +1,61 @@
+---
+title: "Architecture"
+description: "The components that make up a Thaler vault, and how they are coordinated end to end."
+keywords: ["architecture", "Squads", "Cloudflare Worker", "Privy", "policy extension"]
+---
+
+A Thaler vault is composed of four parts. Each part has a single, well-defined responsibility. The boundaries between them are enforced on chain so that no party, including the protocol, can bypass them.
+
+## The four parts
+
+<Steps>
+  <Step title="The Squads smart account">
+    Every vault is an instance of a Squads smart account on Solana. The account holds the deposit
+    and is the only address that can sign on the vault's behalf. Users retain co-ownership of the
+    account at all times.
+  </Step>
+  <Step title="The policy extension">
+    A Squads policy extension is co-signed by the user at creation. It enumerates the allowed
+    assets, the allowed venues, the leverage cap, the claim rules and the closure procedure. After
+    the user signs it once, the policy is immutable. The smart account refuses any instruction
+    that falls outside the policy.
+  </Step>
+  <Step title="The dedicated worker">
+    A Cloudflare Worker instance is provisioned per vault. It watches market conditions and emits
+    instructions that match the policy. The worker cannot widen the policy, sign on behalf of any
+    other vault, or settle assets to an address that the policy has not authorised.
+  </Step>
+  <Step title="The agent wallet">
+    A Privy agent wallet is used by the worker to co-sign permitted instructions. Its signing
+    authority is scoped, time-bounded, and audited on every action. It cannot move funds to an
+    arbitrary address; the smart account's policy extension is the authority that decides what is
+    valid.
+  </Step>
+</Steps>
+
+## How the parts coordinate
+
+A vault always operates within the same loop:
+
+1. The worker reads a market signal (a staking yield update, a borrow rate change, a funding rate flip).
+2. It composes an instruction that the policy permits.
+3. The agent wallet co-signs the instruction with the smart account.
+4. The Solana network executes it on chain.
+5. The change of state is recorded by the protocol and shown to the user.
+
+If any step fails the policy check, the network rejects the transaction. There is no off-chain override.
+
+## Why this structure
+
+The structure separates **custody** (Squads smart account) from **rules** (policy extension), from **execution** (Cloudflare Worker), from **signing** (Privy agent wallet). Each can be reviewed independently and each can be replaced without touching the others.
+
+A user who wants to verify any vault can read its policy on chain and confirm that the worker is operating inside it. There is no privileged path.
+
+## What the user signs
+
+At creation, the user signs:
+
+- The Squads policy extension. This is the rule set the vault will follow for its entire life.
+- The Terms and Policy Agreement. This is the legal acknowledgement that the user understands the non-discretionary execution model and the residual risks of the underlying venues.
+
+After creation, the only on-vault signatures the user produces are for the `claim` and `close` operations. Everything else happens inside the policy bounds described above.

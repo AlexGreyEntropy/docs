@@ -1,0 +1,75 @@
+---
+title: "Strategies"
+description: "An overview of the three pillars every Thaler vault uses to generate yield."
+keywords: ["strategy", "liquid staking", "lending", "perpetual hedge", "Thaler One"]
+---
+
+A Thaler vault uses three coordinated pillars. Each pillar contributes a part of the total yield, and the way the pillars combine determines the risk profile of the vault.
+
+## The three pillars
+
+<Columns cols={3}>
+  <Card title="Liquid staking" icon="layers" href="/strategies/liquid-staking">
+    The base of the position. SOL is staked through a liquid staking provider so the deposit
+    keeps earning staking yield while it is also used by the lending and hedge legs.
+  </Card>
+  <Card title="Lending markets" icon="banknote" href="/strategies/lending-markets">
+    The liquid staking token is supplied as collateral on a lending market. The vault borrows SOL
+    against it and restakes a part of that SOL into the same liquid staking token, capturing the
+    spread between deposit and borrow rates.
+  </Card>
+  <Card title="Perpetual markets" icon="scale" href="/strategies/perpetual-markets">
+    A short perpetual position offsets the directional exposure introduced by holding SOL. The
+    funding rate received on the short adds to the total yield.
+  </Card>
+</Columns>
+
+## Strategy families
+
+Thaler ships strategies in families. Each family runs the same three pillars, but configures them differently. The first family is **Thaler One**, which offers six tiers from `Safe` to `YOLO`. The difference between tiers is the weight given to each pillar.
+
+<AccordionGroup>
+  <Accordion title="Safe">
+    The largest share of capital sits in liquid staking. The lending leg runs at the lowest
+    leverage in the family. The hedge is sized only to keep the position market neutral.
+  </Accordion>
+  <Accordion title="Conservative">
+    A small shift toward the lending leg. The same low hedge leverage as Safe. Returns track the
+    deposit-borrow spread on Kamino more closely.
+  </Accordion>
+  <Accordion title="Balanced">
+    Roughly even weight between the lending leg and the hedge. The hedge runs at moderate leverage
+    so funding income contributes alongside the carry.
+  </Accordion>
+  <Accordion title="Optimistic">
+    A larger hedge with the same moderate leverage as Balanced, biased toward funding income.
+  </Accordion>
+  <Accordion title="Aggressive">
+    The hedge runs at higher leverage. Funding becomes the dominant source of yield. Rebalances
+    happen more frequently.
+  </Accordion>
+  <Accordion title="YOLO">
+    The hedge runs at the highest leverage the protocol allows. Returns are the most variable in
+    the family and the most sensitive to funding-rate regimes.
+  </Accordion>
+</AccordionGroup>
+
+The exact weights, leverage values, and rebalancing thresholds are not published here. They are part of the strategy signature and would lose value if disclosed in full. Reviewers with a legitimate need to inspect them can request the audited specification under NDA.
+
+## Why three pillars instead of one
+
+A single-pillar strategy is exposed to one source of variance: either the staking yield, or the borrow spread, or the funding rate. When that source moves the wrong way, the whole position is exposed.
+
+A three-pillar strategy spreads exposure across uncorrelated sources. Periods where one pillar underperforms are usually periods where another pillar outperforms, because the same market conditions drive them in opposite directions. The total return is more stable than any individual pillar would be on its own.
+
+## What is identical across tiers
+
+Every tier shares the same:
+
+- Custody model (self-custodial Squads smart account).
+- Claim cadence (24-hour cooldown between claims).
+- Closure rules and penalty schedule.
+- Principal protection commitment (see [Principal protection](/security/principal-protection)).
+- Yield floor guarantee (see [Yield floor](/security/yield-floor)).
+
+Only the strategy parameters and the resulting return profile differ.

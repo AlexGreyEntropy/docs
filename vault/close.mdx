@@ -1,0 +1,50 @@
+---
+title: "Closing a vault"
+description: "How to close a Thaler vault, what the unwind looks like, and how the penalty schedule works."
+keywords: ["close vault", "unwind", "penalty", "decay", "exit"]
+---
+
+## What the close operation does
+
+Closing a vault settles all three pillars and returns the deposit plus accumulated yield to the user's wallet, denominated in SOL. The close runs in one transaction. It:
+
+1. Closes the perpetual hedge on the configured venue and books the realised funding.
+2. Repays the borrow leg on Kamino and recovers the supplied liquid staking collateral.
+3. Unstakes (or sells) the recovered liquid staking token back to SOL.
+4. Pays out the net SOL amount to the user's wallet.
+
+No off-chain action is needed. The user signs a single transaction.
+
+## The 96-day penalty schedule
+
+A vault closed before day 96 incurs a closure fee. The fee starts at 3% of the deposit on day 0 and decays linearly to 0% at day 96. After day 96, a close is free.
+
+The penalty exists because the strategy is most efficient when capital can be held long enough to ride out short-term variance in funding rates and lending spreads. A very short hold can leave the vault on the wrong side of a funding regime change, and the protocol reserves a buffer to smooth that case.
+
+The penalty is paid from the vault's balance at the moment of closure. It is not added separately; the SOL the user receives is already net of the fee.
+
+## When closing makes sense
+
+Close when:
+
+- You want to withdraw the deposit. There is no other way to exit.
+- The vault is past day 96 and the penalty is zero.
+- The penalty schedule has decayed to a level you are comfortable paying.
+
+Close is not the right action when you only want to collect yield. Use the [claim operation](/vault/claim) instead.
+
+## What you receive
+
+The payout is denominated in SOL. The amount equals:
+
+- The deposit, minus any closure penalty that applies on that day,
+- Plus the accumulated unclaimed yield from all three pillars,
+- Net of network fees for the close transaction.
+
+If any claim was made during the vault's life, the already-claimed amount sits in your wallet from those earlier transactions; the close only pays what is left.
+
+## What happens behind the scenes
+
+The close is enforced by the policy extension. The Cloudflare Worker can propose a close, but the smart account checks that the proposed instructions match the closure procedure baked into the policy: same unwind order, same venue interactions, same payout address. If the proposed close deviates, the smart account refuses the transaction.
+
+This means a close always returns funds to the user's wallet. There is no path inside the policy that lets the worker route the payout elsewhere.

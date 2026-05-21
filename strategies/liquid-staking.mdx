@@ -1,0 +1,45 @@
+---
+title: "Liquid staking"
+description: "How the staking leg of a Thaler vault works, and what assets the protocol supports."
+keywords: ["liquid staking", "jitoSOL", "mSOL", "bSOL", "staking yield"]
+---
+
+## The role of staking
+
+Every Thaler vault rests on a liquid staking position. When you deposit SOL, the protocol mints (or buys) a liquid staking token on your behalf. The token represents staked SOL plus the staking rewards that accrue over time. While the rest of the vault uses the token in other ways, the staking yield keeps accruing in the background and forms the floor of the total return.
+
+## Supported assets
+
+The protocol currently supports the following liquid staking tokens as the staking leg of a vault:
+
+- **jitoSOL**, issued by Jito.
+- **mSOL**, issued by Marinade.
+
+Each vault stakes through one of these at creation. The choice is locked into the policy extension and cannot be changed after creation. Closing the vault unwinds the staking position and returns SOL to the user.
+
+Additional liquid staking tokens are planned for the next release:
+
+- **bSOL**, issued by BlazeStake (Solana Blaze).
+- **STKESOL**, issued by Sol Strategies.
+
+When these come online they will be available alongside jitoSOL and mSOL at the moment of vault creation.
+
+## Why liquid staking matters
+
+Plain SOL staking locks the token in a stake account. The reward is paid in SOL but the principal is illiquid and cannot be used elsewhere. Liquid staking tokens are tradable and composable, which means the vault can:
+
+- Supply the token as collateral on a lending market.
+- Provide the token into a liquidity pool when the strategy calls for it.
+- Settle the token immediately when the vault closes.
+
+Without liquid staking, the three-pillar design would not be possible.
+
+## Staking provider risk
+
+The staking leg inherits the operational track record of the chosen provider. Jito and Marinade have multi-year live records on Solana, large total value staked, and have published audits of their stake distribution and validator selection logic. The provider's smart contracts are independent of Thaler.
+
+## How rewards are realised
+
+Staking rewards are paid into the liquid staking token's exchange rate. As rewards accrue, the token becomes worth slightly more SOL than it did at issuance. When the vault closes, the user receives the SOL equivalent of the token at the prevailing exchange rate, capturing the accrued staking yield in the same payout.
+
+The protocol does not separately distribute staking rewards. They are part of the total return paid at close, alongside the lending spread and the perpetual funding.

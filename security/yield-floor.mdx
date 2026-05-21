@@ -1,0 +1,61 @@
+---
+title: "Yield floor"
+description: "What the yield floor guarantee means, how it is calculated, and how the protocol commits to it."
+keywords: ["yield floor", "guaranteed yield", "minimum return", "delta neutral"]
+---
+
+## What the yield floor is
+
+Each Thaler tier advertises a **yield floor** alongside its APY range. The floor is the minimum realised return the protocol commits to pay on a full-year hold of the vault.
+
+The yield floor is shown:
+
+- Next to the APY range in the Strategies list.
+- On every tier card in the Create Vault selector.
+- Under the strategy summary on the My Vaults dashboard.
+
+The exact floor differs per tier. Higher-tier vaults run at higher leverage on the hedge and carry more variance, but the floor moves with the tier so the commitment is meaningful at every level.
+
+## How the floor is set
+
+The protocol does not pick the floor arbitrarily. It is derived from the V12 walk-forward backtest of the strategy across the full live history of the supported venues. The procedure is:
+
+1. Run the strategy at the tier's parameters over every continuous twelve-month window in the data set.
+2. Take the realised end-of-window return for each window.
+3. Choose a floor that sits below the lowest observed realised return.
+
+This means the floor is calibrated against the worst historical year for that tier, with a margin underneath it. The floor is not a forward projection; it is a backward-derived commitment.
+
+## How the floor is paid
+
+When a vault closes and the realised return is below the floor, the protocol reserve covers the gap. The user receives at least the floor amount, net of the service fee.
+
+If the realised return exceeds the floor, the user receives the realised return. The floor is a floor, not a ceiling. Nothing about the yield floor caps the upside.
+
+## What can break the floor
+
+Two scenarios are explicitly outside the floor:
+
+- **Smart-contract failure of a third-party venue.** If a venue loses funds outside the
+  protocol's control, the floor does not apply to that loss. This is the residual risk
+  described in [Risk disclosure](/security/risk-disclosure).
+- **A close inside the penalty schedule.** Closing before day 96 incurs a fee that is deducted
+  from the payout. The fee can reduce the SOL amount below the deposit even if the gross
+  realised yield was at the floor. After day 96, the penalty is zero and the floor applies in
+  full.
+
+## Why a floor and not a fixed APY
+
+A fixed APY would imply the protocol can guarantee the exact return regardless of market conditions. That would require either:
+
+- Stripping the variable upside (the user gets exactly the fixed rate even when conditions are
+  excellent), or
+- Promising more than the protocol can sustainably deliver.
+
+A floor preserves the variable upside the strategy actually produces and commits the protocol to a tested lower bound. Users participate in the realised yield above the floor and are protected below it.
+
+## How the floor relates to principal protection
+
+[Principal protection](/security/principal-protection) and the yield floor are separate commitments. Principal protection ensures you receive at least the deposit back. The yield floor ensures you receive at least the floor return on top of the deposit.
+
+In the worst supported case, you receive `deposit + floor`. In the best case, you receive `deposit + realised yield` where realised yield is the strategy's actual performance.

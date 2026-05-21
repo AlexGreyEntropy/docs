@@ -1,43 +1,39 @@
-# Mintlify Starter Kit
+# Thaler Finance documentation
 
-Use the starter kit to get your docs deployed and ready to customize.
+Public documentation for [Thaler Finance](https://thaler.finance). The site is published to `docs.thaler.finance` via Mintlify.
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+## Local preview
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
-
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
-
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
-
-```
-npm i -g mint
-```
-
-Run the following command at the root of your documentation, where your `docs.json` is located:
-
-```
+```bash
+npm install -g mint
 mint dev
 ```
 
-View your local preview at `http://localhost:3000`.
+Mintlify watches the local files and rebuilds on save. The dev server runs on `localhost:3000`.
 
-## Publishing changes
+## Structure
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+| Path | What lives here |
+|------|------------------|
+| `index.mdx` | Landing page |
+| `overview/` | What Thaler is, architecture, custody and policy |
+| `strategies/` | The three pillars and the per-tier strategy family |
+| `vault/` | Create, claim, close, fees |
+| `security/` | Principal protection, yield floor, risk disclosure |
+| `faq.mdx` | Frequently asked questions |
+| `docs.json` | Site configuration, navigation and theme |
+| `logo/` | Light and dark Thaler wordmark |
 
-## Need help?
+## Editing rules
 
-### Troubleshooting
+- Write in second-person voice ("you", "your vault").
+- Active voice, direct language.
+- Sentence case for headings.
+- No buzzwords, no marketing copy, no AI terminology.
+- Do not publish strategy parameters, position sizes or operational thresholds.
+- All code blocks need a language tag.
+- All internal links use root-relative paths without file extensions: `/strategies/index`.
 
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
+## Publishing
 
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+Push to `main`. Mintlify auto-deploys.

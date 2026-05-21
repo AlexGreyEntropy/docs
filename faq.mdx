@@ -1,0 +1,70 @@
+---
+title: "Frequently asked questions"
+description: "Answers to the most common questions about Thaler vaults."
+keywords: ["FAQ", "questions", "Thaler", "Solana"]
+---
+
+<AccordionGroup>
+  <Accordion title="Is Thaler self-custodial?">
+    Yes. Each vault is a Squads smart account that the user co-owns. The protocol cannot move
+    funds out of a vault without instructions that satisfy the immutable policy the user signed
+    at creation.
+  </Accordion>
+  <Accordion title="Do I need to manage the position?">
+    No. The strategy is non-discretionary. The Cloudflare Worker handles rebalancing, lending
+    leg sizing and hedge maintenance inside the policy bounds. The user signs at creation, at
+    claim, and at close.
+  </Accordion>
+  <Accordion title="Is the principal really protected?">
+    On a normal close, yes. The protocol reserve covers any shortfall caused by ordinary market
+    variance. The protection does not extend to a smart-contract failure of a third-party venue,
+    a loss of user keys, or a close inside the penalty schedule. See
+    [Principal protection](/security/principal-protection) for the full picture.
+  </Accordion>
+  <Accordion title="What is the yield floor?">
+    A per-tier minimum return the protocol commits to pay on a full-year hold. The floor is
+    derived from the worst observed twelve-month window in the V12 backtest of the strategy.
+    Realised yield can exceed the floor; it cannot fall below it on a normal close. See
+    [Yield floor](/security/yield-floor).
+  </Accordion>
+  <Accordion title="Why is the deposit fixed at 2 SOL?">
+    The beta uses a fixed deposit to equalise capacity across early users and to keep
+    operational variance low during the first wave. After the beta closes, deposit sizing
+    becomes variable.
+  </Accordion>
+  <Accordion title="Can I deposit in USDC instead of SOL?">
+    Yes. The Create Vault screen accepts a USDC equivalent. The protocol routes USDC into SOL
+    through a same-chain swap before funding the vault, using a LI.FI quote that is shown on
+    screen before you sign.
+  </Accordion>
+  <Accordion title="How often can I claim yield?">
+    Once every 24 hours per vault. The cooldown is enforced by the policy. A claim does not
+    affect the strategy and does not reset the closure penalty schedule. See
+    [Claiming yield](/vault/claim).
+  </Accordion>
+  <Accordion title="How long does a close take?">
+    A close runs in one transaction. Most closes confirm in under a minute. If a venue is
+    congested, the worker retries until the position is fully unwound.
+  </Accordion>
+  <Accordion title="What if I close early?">
+    A closure penalty applies. It starts at 3% of the deposit on day 0 and decays linearly to
+    0% on day 96. After day 96 a close is free. See
+    [Closing a vault](/vault/close).
+  </Accordion>
+  <Accordion title="Where are my funds while the vault is running?">
+    Inside the Squads smart account that you co-own. The smart account is the address that
+    holds the deposit, the liquid staking token, the lending position and the perpetual
+    margin. The protocol never has custody of your funds.
+  </Accordion>
+  <Accordion title="Can the protocol change the rules after I open a vault?">
+    No. The Squads policy extension is immutable once signed. If the protocol updates the rule
+    set, it deploys a new policy version. Existing vaults continue under the policy they signed.
+  </Accordion>
+  <Accordion title="Where can I see the strategy parameters?">
+    The headline figures (APY range, yield floor, supported venues) are public on the
+    Strategies page in the app and on this site. The detailed strategy parameters (leverage
+    values, rebalance thresholds, exact venue weights) are not published; they are part of the
+    strategy signature. Auditors and integration partners with a legitimate need can request
+    them under NDA via `audit@thaler.finance`.
+  </Accordion>
+</AccordionGroup>
