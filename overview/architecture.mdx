@@ -4,105 +4,80 @@ description: "The components that make up a Thaler vault and how they coordinate
 keywords: ["architecture", "Squads", "Cloudflare Worker", "Privy", "policy extension"]
 ---
 
-A Thaler vault is composed of four parts. Each part has one responsibility, and the boundaries between them are enforced on chain so no party can bypass them, including the protocol.
+## Components
 
-## The four parts at a glance
+A Thaler vault is composed of four parts. Each part has one responsibility, and the boundaries between them are enforced on chain.
+
+| Component | Responsibility | Held by | Mutable after creation |
+|-----------|-----------------|---------|------------------------|
+| Squads smart account | Holds the deposit and any accrued yield | User and protocol (multisig co-signers) | Account address is permanent |
+| Policy extension | Defines what the smart account will sign | User signs once at creation | No |
+| Dedicated worker | Reads market conditions and proposes instructions | Protocol operations | Worker can be replaced, policy cannot |
+| Agent wallet | Co-signs permitted instructions alongside the user's key | Protocol | Authority is scoped by the policy |
+
+The smart account is the address of record. Funds enter and leave through it, and every instruction it executes is checked against the policy before any signature is honoured.
+
+## Coordination loop
 
 ```mermaid
-flowchart TB
-  subgraph Custody
-    SA[Squads smart account]
-    PE[Policy extension]
-    SA --- PE
-  end
-  subgraph Execution
-    CW[Cloudflare Worker]
-    AW[Privy agent wallet]
-    CW --- AW
-  end
-  Custody <-->|signed instructions| Execution
-  Execution -->|on-chain tx| Solana[(Solana)]
-  Solana -.->|state update| Custody
+sequenceDiagram
+    autonumber
+    participant Market
+    participant Worker
+    participant Agent as Agent wallet
+    participant Account as Squads account
+    participant Solana
+    Market->>Worker: Rate, yield, or funding update
+    Worker->>Worker: Compose policy-compliant instruction
+    Worker->>Agent: Request co-signature
+    Agent->>Account: Submit signed instruction
+    Account->>Account: Verify against policy extension
+    Account->>Solana: Broadcast if valid; reject if not
+    Solana-->>Account: Execution receipt
+    Account-->>Worker: State update
 ```
 
-| Component | Role | Held by | Mutable after creation |
-|-----------|------|---------|------------------------|
-| Squads smart account | Holds the deposit and any yield | User and protocol (multisig) | Account address is permanent |
-| Policy extension | Defines what the smart account will sign | User signs once at creation | No |
-| Cloudflare Worker | Reads markets and proposes instructions | Protocol operations | Worker can be replaced, policy cannot |
-| Privy agent wallet | Co-signs permitted instructions | Protocol | Authority is scoped by the policy |
+Every action follows the same five steps. If any step fails the policy check, the network rejects the transaction. There is no off-chain override.
 
-## How the parts coordinate
+## Why separate four concerns
 
-<Steps>
-  <Step title="The worker reads a market signal">
-    A staking yield update, a borrow rate change, a funding rate flip. The worker continuously
-    monitors the venues the policy allows.
-  </Step>
-  <Step title="The worker composes an instruction">
-    The instruction targets one of the allowed venues with parameters that fit inside the
-    policy's bounds (leverage cap, loan-to-value buffer, allowed asset list).
-  </Step>
-  <Step title="The agent wallet co-signs">
-    The Privy agent wallet adds its signature to the smart account's multisig. If the
-    instruction is outside the policy, the smart account refuses it and the transaction
-    never reaches the network.
-  </Step>
-  <Step title="Solana executes the instruction">
-    The on-chain program updates the vault's state. Yield accrues, collateral moves, or the
-    hedge size changes, depending on which leg was rebalanced.
-  </Step>
-  <Step title="The protocol records the change">
-    The new state shows up in the dashboard, the My Vaults card, and the analytics endpoints.
-    No off-chain log is authoritative; the chain is.
-  </Step>
-</Steps>
+The structure keeps each layer independently reviewable.
 
-## Why this structure
+| Concern | Owned by | Why it is isolated |
+|---------|----------|--------------------|
+| Custody | Smart account | Funds cannot leave without policy-compliant instructions |
+| Rules | Policy extension | Reviewers can verify the rule set in one place, once |
+| Execution | Worker | Worker can be replaced or upgraded without touching the rules |
+| Signing | Agent wallet | Signing authority is scoped, time-bounded, and audited |
 
-The structure separates four concerns and keeps each one independently reviewable.
+A reviewer can inspect any one layer without needing the others. The smart account refuses to sign anything outside the policy regardless of who proposes it.
 
-<Columns cols={2}>
-  <Card title="Custody is separated from rules" icon="vault">
-    The smart account holds the funds. The policy holds the rules. The two are linked on chain
-    so the funds can only be moved according to the rules.
-  </Card>
-  <Card title="Rules are separated from execution" icon="route">
-    The policy is signed once and never changes. The execution layer can be replaced or
-    upgraded without touching the policy.
-  </Card>
-  <Card title="Execution is separated from signing" icon="signature">
-    The worker proposes; the agent wallet signs. The smart account verifies the proposal
-    against the policy before either signature counts.
-  </Card>
-  <Card title="Each layer can be audited alone" icon="microscope">
-    Reviewers can inspect the policy extension, the worker, or the agent wallet
-    independently. There is no privileged path that lets one bypass another.
-  </Card>
-</Columns>
+## What the user signs at creation
 
-## What the user signs
+The creation transaction bundles four actions into a single signature.
 
-At creation the user signs twice:
+| Action | Effect |
+|--------|--------|
+| Create the Squads smart account | A new on-chain account with the user as a co-signer |
+| Co-sign the policy extension | The rule set is bound to the account and becomes immutable |
+| Take the vault creation fee | A small SOL amount goes to the protocol treasury |
+| Route the deposit into the staking leg | 2 SOL is staked through the chosen provider |
 
-1. The **Squads policy extension**. This is the rule set the vault will follow for its entire life. Once signed, it is immutable. Anyone with the smart account address can read the policy on chain.
-2. The **Terms and Policy Agreement**. The legal acknowledgement that the user understands the non-discretionary execution model and the residual risks of the underlying venues.
+After creation, the user signs only for `claim` and `close`. Every other action happens inside the policy bounds.
 
-After creation the user signs only for `claim` and `close`. Every other action happens inside the policy bounds.
-
-## How recovery works
+## Continuity
 
 Squads smart accounts can be recovered by the user even if the protocol disappears. The deposit and any accrued yield are held by the smart account, not by the protocol. As long as the user holds their share of the multisig, they can interact with the account directly.
 
-The worker is a convenience layer. It can be removed without losing access to the assets it manages. If the worker stops responding, the user can still sign a manual close.
+The worker is a convenience layer. It can be replaced or removed without losing access to the assets the smart account holds. If the worker stops responding, the user can still sign a manual close.
 
 ## Next read
 
 <Columns cols={2}>
   <Card title="Custody and policy" icon="key" href="/overview/custody-and-policy">
-    Why the policy is immutable, and what the rule set controls.
+    What the policy controls and how to verify it on chain.
   </Card>
   <Card title="Strategies" icon="line-chart" href="/strategies/index">
-    The three pillars that turn the deposit into yield.
+    The three pillars the policy authorises and how they earn together.
   </Card>
 </Columns>

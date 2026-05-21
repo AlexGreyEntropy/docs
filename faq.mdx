@@ -9,20 +9,20 @@ keywords: ["FAQ", "questions", "Thaler", "Solana"]
 <AccordionGroup>
   <Accordion title="Is Thaler self-custodial?" defaultOpen>
     Yes. Each vault is a Squads smart account that the user co-owns. The protocol cannot move
-    funds out of a vault without instructions that satisfy the immutable policy the user signed
-    at creation. See [Custody and policy](/overview/custody-and-policy).
+    funds out of a vault without instructions that satisfy the immutable policy the user
+    signed at creation. See [Custody and policy](/overview/custody-and-policy).
   </Accordion>
   <Accordion title="Do I need to manage the position?">
     No. The strategy is non-discretionary. The dedicated worker handles rebalancing, lending
     leg sizing, and hedge maintenance inside the policy bounds. The user signs at creation, at
     claim, and at close. Nothing else.
   </Accordion>
-  <Accordion title="Where are my funds while the vault is running?">
-    Inside the Squads smart account that you co-own. The smart account holds the deposit, the
-    liquid staking token, the lending position, and the perpetual margin. The protocol never
-    has custody of your funds.
+  <Accordion title="Where are the funds while the vault is running?">
+    Inside the Squads smart account that the user co-owns. The smart account holds the
+    deposit, the liquid staking token, the lending position, and the perpetual margin. The
+    protocol never has custody of user funds.
   </Accordion>
-  <Accordion title="Can the protocol change the rules after I open a vault?">
+  <Accordion title="Can the protocol change the rules after the vault is open?">
     No. The Squads policy extension is immutable once signed. If the protocol updates the rule
     set, it deploys a new policy version. Existing vaults continue under the policy they
     signed.
@@ -33,10 +33,10 @@ keywords: ["FAQ", "questions", "Thaler", "Solana"]
 
 <AccordionGroup>
   <Accordion title="Is the principal really protected?">
-    On a normal close, yes. The protocol reserve covers any shortfall caused by ordinary market
-    variance. The protection does not extend to a smart-contract failure of a third-party
-    venue, a loss of user keys, or a close inside the penalty schedule. See
-    [Principal protection](/security/principal-protection) for the full picture.
+    On a normal close, yes. The protocol reserve covers any shortfall caused by ordinary
+    market variance. The protection does not extend to a smart-contract failure of a
+    third-party venue, a loss of user keys, or a close inside the penalty schedule. See
+    [Principal protection](/security/principal-protection).
   </Accordion>
   <Accordion title="What is the yield floor?">
     A per-tier minimum return the protocol commits to pay on a full-year hold. The floor is
@@ -64,7 +64,7 @@ keywords: ["FAQ", "questions", "Thaler", "Solana"]
   <Accordion title="Can I deposit in USDC instead of SOL?">
     Yes. The Create Vault screen accepts a USDC equivalent. The protocol routes USDC into SOL
     through a same-chain LI.FI swap before funding the vault. The route and the estimated
-    USDC required are shown on screen before you sign.
+    USDC required are shown before signing.
   </Accordion>
   <Accordion title="How often can I claim yield?">
     Once every 24 hours per vault. The cooldown is enforced by the policy at the smart-account
@@ -90,8 +90,8 @@ keywords: ["FAQ", "questions", "Thaler", "Solana"]
     0 % on day 96. After day 96 a close is free. See [Closing a vault](/vault/close).
   </Accordion>
   <Accordion title="Can I close before the perpetual hedge settles?">
-    The close transaction settles the hedge as part of the same operation. You do not need to
-    close the hedge separately or wait for an off-chain confirmation.
+    The close transaction settles the hedge as part of the same operation. The user does not
+    need to close the hedge separately or wait for an off-chain confirmation.
   </Accordion>
 </AccordionGroup>
 
@@ -105,13 +105,13 @@ keywords: ["FAQ", "questions", "Thaler", "Solana"]
   </Accordion>
   <Accordion title="Is the headline APY the gross or net rate?">
     Net. The APY range shown on the Strategies page is the user's net return after the 11 %
-    service fee is taken. You do not need to subtract anything to compare across tiers.
+    service fee is taken. No further subtraction is required to compare across tiers.
   </Accordion>
   <Accordion title="Why does the simulator show different ROI for shorter windows?">
     The simulator compounds the per-tier APY across the selected holding period. A 30-day
-    holding window at an 11.75 % APY produces around 0.92 % realised ROI; the same band on a
-    365-day holding window produces the full 11.75 %. The numbers stay internally consistent
-    with the headline APY.
+    holding window at an 11.75 % APY produces about 0.92 % realised ROI; the same band on a
+    365-day window produces the full 11.75 %. The numbers stay internally consistent with the
+    headline APY.
   </Accordion>
 </AccordionGroup>
 
@@ -120,10 +120,10 @@ keywords: ["FAQ", "questions", "Thaler", "Solana"]
 <AccordionGroup>
   <Accordion title="Where can I see the strategy parameters?">
     The headline figures (APY range, yield floor, supported venues) are public on the
-    Strategies page in the app and on this site. The detailed strategy parameters (leverage
-    values, rebalance thresholds, exact venue weights) are not published; they are part of the
-    strategy signature. Auditors and integration partners with a legitimate need can request
-    them under NDA via `audit@thaler.finance`.
+    Strategies page in the app and on this site. Detailed strategy parameters (leverage
+    values, rebalance thresholds, exact venue weights) are not published; they are part of
+    the strategy signature. Auditors and integration partners with a legitimate need can
+    request them under NDA via `audit@thaler.finance`.
   </Accordion>
   <Accordion title="Why are the exact weights kept private?">
     The protocol's edge depends on the precise calibration of LTV buffers, leverage caps, and

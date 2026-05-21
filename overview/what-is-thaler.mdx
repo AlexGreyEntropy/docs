@@ -1,92 +1,69 @@
 ---
 title: "What is Thaler"
-description: "What the protocol does, who it is for, and why a delta-neutral vault earns more reliable yield than a single-strategy product."
+description: "What the protocol does, who it is for, and why a delta-neutral position earns more reliable yield than a single-strategy product."
 keywords: ["Thaler", "delta neutral", "Solana yield", "self custodial vault"]
 ---
 
-## In one paragraph
+## Definition
 
-Thaler is a Solana yield protocol that builds a delta-neutral position around a SOL deposit. Each user receives a self-custodial vault that allocates capital to three coordinated strategies: liquid staking, a lending loop, and a short perpetual hedge. Realised return comes from staking rewards, the deposit-borrow spread, and the funding rate on the hedge. Because the long staking exposure and the short perpetual exposure cancel out, the vault earns yield without taking a directional view on the price of SOL.
+Thaler is a Solana yield protocol. A user deposits SOL into a self-custodial vault. The vault allocates that SOL across three strategies that earn from independent sources: a liquid staking position, a deposit-borrow loop on a lending market, and a short perpetual position. The long staking exposure and the short perpetual exposure are sized to offset each other, so the realised return reflects the rates earned rather than the price of SOL during the holding period.
 
-## The shape of the position
+Each vault is bound by a Squads policy extension co-signed at creation. The policy is immutable once signed. The protocol cannot move funds outside the rules in the policy, and the policy enumerates the allowed assets, the allowed venues, the leverage cap, the claim cadence, and the closure procedure.
 
-```mermaid
-flowchart LR
-  D([SOL deposit]) --> S[Liquid staking]
-  S --> L[Lending market]
-  L --> R[Restake]
-  L --> H[Short perpetual]
-  R -.-> S
-  S -- staking yield --> Y([Total yield])
-  L -- spread --> Y
-  H -- funding --> Y
-```
+## Sources of return
 
-The three pillars run in parallel. Each pillar earns yield from a different source, and the same market conditions that compress one source often widen another. The total return is therefore steadier than the sum of any one pillar on its own.
+| Pillar | What it earns | What it pays |
+|--------|----------------|----------------|
+| Liquid staking | Solana staking reward, paid into the LST exchange rate | Nothing |
+| Lending loop | Supply yield on Kamino + staking yield on collateral | The SOL borrow rate |
+| Perpetual hedge | Funding payments when SOL perpetual funding is positive | Funding payments when funding is negative; net positive over history |
+
+In steady state the three pillars sum to a net positive rate. The exact decomposition shifts with conditions, which is the structural reason the total return is more stable than any single component.
 
 ## Who it is for
 
 <Columns cols={2}>
-  <Card title="SOL holders who want yield" icon="coins">
-    Users with idle SOL who want it to earn without converting to a stablecoin and without
-    giving up custody.
+  <Card title="SOL holders seeking yield" icon="coins">
+    Users with idle SOL who want it to earn a return without converting to a stablecoin and
+    without giving up custody.
   </Card>
   <Card title="Long-duration capital" icon="hourglass">
     Capital that can sit in the vault long enough for the penalty schedule to decay to zero
-    (96 days). After that, closing is free.
+    (96 days). Closing after that point is free.
   </Card>
   <Card title="Audit and integration teams" icon="shield-check">
-    Reviewers who need to verify custody, claim cadence, and closure rules before signing off
-    on an integration.
+    Reviewers verifying custody, claim cadence, and closure rules before signing off on an
+    integration.
   </Card>
   <Card title="Builders" icon="puzzle">
-    Teams that want a vault primitive they can route deposits into from a wallet or aggregator.
+    Teams that want a vault primitive they can route deposits into from a wallet or
+    aggregator.
   </Card>
 </Columns>
 
-## Why delta-neutral
+## The case for delta-neutrality
 
-A long-only SOL position earns staking and lending yield but is fully exposed to the price of SOL. A short-only position pays or receives funding but is exposed in the opposite direction. Pairing both sides at matching size cancels out the directional exposure and leaves the yield differential.
+A long-only SOL position earns staking and lending yield but is fully exposed to the price of SOL. A short-only position pays or receives funding and is exposed in the opposite direction. Pairing both sides at matching size cancels the directional exposure and isolates the yield differential.
 
-The chart below illustrates the result in stylised terms. Two positions on the same SOL move, side by side, with the third line showing what Thaler users actually experience.
+The realised outcome differs sharply by structure:
 
-```mermaid
-flowchart TB
-  subgraph Position outcomes when SOL price moves
-    direction LR
-    A[Long-only] -- price up --> AP[Strong gain]
-    A -- price down --> AN[Loss]
-    B[Short-only] -- price up --> BN[Loss]
-    B -- price down --> BP[Strong gain]
-    C[Thaler delta-neutral] -- price up --> CY[Yield only]
-    C -- price down --> CY
-  end
-```
+| Strategy | When SOL rises | When SOL falls | Realised return tracks |
+|----------|----------------|----------------|------------------------|
+| Long-only SOL | Strong appreciation | Loss | Spot price |
+| Short-only SOL | Loss | Appreciation | Inverse spot price |
+| Thaler vault (delta-neutral) | Yield only | Yield only | Rates earned |
 
 The user is exposed to the rates earned (staking yield, lending spread, perpetual funding), not the direction of SOL.
 
-## What Thaler is not
+## Scope
 
-<AccordionGroup>
-  <Accordion title="Not a discretionary fund">
-    The strategy executed by a vault is fixed at creation and enforced on chain. The protocol
-    cannot widen the mandate, change the venues, or move assets outside the rules signed by the
-    user.
-  </Accordion>
-  <Accordion title="Not a directional bet on SOL">
-    The hedge inside each vault is sized so the value of the vault tracks the yield earned, not
-    the price of SOL. Realised return is uncorrelated with SOL spot moves over the holding
-    period.
-  </Accordion>
-  <Accordion title="Not insurance">
-    The protocol guarantees the per-tier yield floor advertised at creation and protects deposit
-    principal through its reserve. The third-party venues the vault interacts with carry
-    residual smart-contract and counterparty risk that no on-chain policy can fully eliminate.
-    See [Risk disclosure](/security/risk-disclosure).
-  </Accordion>
-</AccordionGroup>
+Thaler is not a discretionary fund. The strategy executed by a vault is fixed at creation and enforced on chain. The protocol cannot widen the mandate, change the venues, or move assets outside the rules signed by the user.
 
-## How the beta differs from the production build
+Thaler is not a directional bet on SOL. The hedge inside each vault is sized so the value of the position tracks the yield earned, not the price of SOL. Realised return is uncorrelated with SOL spot movement over the holding period.
+
+Thaler is not insurance. The protocol guarantees the per-tier yield floor advertised at creation and protects deposit principal through its reserve. The third-party venues the vault interacts with carry residual smart-contract and counterparty risk that no on-chain policy can fully eliminate. See [Risk disclosure](/security/risk-disclosure).
+
+## The beta in context
 
 The current beta accepts a fixed deposit of 2 SOL per vault. This equalises capacity across early users and keeps operational variance low during the first wave. After the beta closes, deposit sizing becomes variable and the protocol opens additional strategy families beyond Thaler One.
 
@@ -96,9 +73,9 @@ The rest of the product is identical to the production target: same custody mode
 
 <Columns cols={2}>
   <Card title="Architecture" icon="layers" href="/overview/architecture">
-    The four components that make up a vault, end to end.
+    The four components that make up a vault.
   </Card>
   <Card title="Custody and policy" icon="key" href="/overview/custody-and-policy">
-    Who holds the keys to your vault, and why the rules cannot change after signing.
+    Who holds the keys, and why the rules cannot change after signing.
   </Card>
 </Columns>

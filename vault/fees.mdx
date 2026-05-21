@@ -4,88 +4,81 @@ description: "The three fees Thaler charges, when they are collected, and how th
 keywords: ["fees", "service fee", "vault creation fee", "closure penalty"]
 ---
 
-## What you pay
+## Fee schedule
 
-A Thaler vault has three fees over its lifetime. They are all transparent and all settled on chain.
+A Thaler vault has three fees over its lifetime. All are transparent and settle on chain.
 
 | Fee | Rate | When collected | Paid from |
 |-----|------|----------------|-----------|
-| Vault creation fee | Small fixed SOL amount | At creation | Wallet balance |
+| Vault creation fee | Small fixed SOL amount | At creation | User wallet balance |
 | Service fee | 11 % of realised yield | At each claim and at close | Harvested yield |
 | Closure penalty | 3 % decaying to 0 % over 96 days | Only on closure before day 96 | Vault balance |
 
-```mermaid
-flowchart LR
-  W([Wallet]) -- creation fee --> Treasury([Protocol treasury])
-  V[(Vault)] -- 11% of yield --> Treasury
-  V -. only if closed early .-> Reserve([Protocol reserve])
-  V -- net SOL --> W2([Your wallet])
-```
-
-## The three fees in detail
+## Detail on each fee
 
 <AccordionGroup>
   <Accordion title="Vault creation fee" defaultOpen>
     A small fixed fee paid at creation. It is denominated in SOL and is set so that creating a
-    vault does not require any other configuration. The current value is shown on the Create
-    Vault screen before you confirm the transaction.
+    vault does not require any additional configuration. The current value is shown on the
+    Create Vault screen before the user confirms the transaction.
   </Accordion>
   <Accordion title="Service fee">
     A flat 11 % of the realised yield, collected at claim time and at close time. The protocol
-    never takes a share of the deposit. If the vault produced no yield, the service fee is
+    never takes a share of the deposit. If the vault produces no yield, the service fee is
     zero.
   </Accordion>
   <Accordion title="Closure penalty">
     A fee that starts at 3 % of the deposit on day 0 and decays linearly to 0 % by day 96. If
-    you close after day 96 there is no penalty. The schedule is enforced by the immutable
-    policy and cannot be waived by the protocol.
+    the user closes after day 96 there is no penalty. The schedule is enforced by the
+    immutable policy and cannot be waived by the protocol.
   </Accordion>
 </AccordionGroup>
 
-## What you do not pay
+## Fees the protocol does not charge
 
-- **No deposit fee.** The full deposit enters the vault.
-- **No management fee.** The service fee is performance-based; if the vault earns nothing, the
-  protocol earns nothing.
-- **No withdrawal fee outside the penalty schedule.** Closing after day 96 is free.
+| Item | Status |
+|------|--------|
+| Deposit fee | None. The full deposit enters the vault. |
+| Management fee | None. The 11 % service fee is performance-based. |
+| Withdrawal fee outside the penalty schedule | None. Closing after day 96 is free. |
 
 ## Network fees
 
-The transactions that the worker emits on your vault's behalf pay Solana network fees. These are paid out of the vault's balance, not by the user, and are typically a few cents per transaction. They are not a Thaler fee; they are a Solana network cost.
+Transactions emitted by the worker on the vault's behalf pay Solana network fees. These are paid out of the vault's balance, not by the user, and are typically a few cents per transaction. They are not a Thaler fee; they are a Solana network cost.
 
 ## Net APY versus gross APY
 
-The headline APY shown for each tier on the Strategies and Create Vault screens is the **net** APY. It already deducts the service fee from the gross strategy return.
+The headline APY shown for each tier on the Strategies and Create Vault screens is the **net** APY. The service fee is already deducted from the gross strategy return:
 
-```mermaid
-flowchart LR
-  G([Gross strategy return]) --> SF[Subtract 11% service fee]
-  SF --> N([Net APY · what you see])
+```
+net_apy = gross_apy × (1 − 0.11)
 ```
 
-You do not need to subtract anything to compare across tiers. The yield floor advertised next to each tier is also a net number. The protocol guarantees that the floor will be paid, after the service fee is taken.
+The user does not need to subtract anything to compare across tiers. The yield floor advertised next to each tier is also a net number; the protocol guarantees the floor will be paid after the service fee is taken.
 
-## A worked example
+## Worked example: full-year hold, no early close
 
-A vault deposited at 2 SOL on the Balanced tier (median net APY 11.75 %, yield floor 7.3 %).
+A 2 SOL deposit on the Balanced tier (median net APY 11.75 %, yield floor 7.3 %):
 
-After one year of running uninterrupted, the vault closes:
+| Case | Realised net APY | Payout at year-end |
+|------|------------------|--------------------|
+| Worst supported | 7.30 % (floor) | 2.146 SOL |
+| Median | 11.75 % | 2.235 SOL |
+| Best | 14.80 % | 2.296 SOL |
 
-- Median case: vault pays out `2 × 1.1175 = 2.235 SOL` (or more, depending on realised conditions).
-- Worst case: vault pays out at least `2 × 1.073 = 2.146 SOL` (the yield floor).
-- Best case: vault pays out up to `2 × 1.148 = 2.296 SOL` (the upper band).
+The vault's payout band sits between 2.146 SOL and 2.296 SOL, with the median around 2.235 SOL.
 
-If the vault is closed before day 96, the closure penalty is deducted from the final amount.
+## Worked example: closing on day 30
 
-Closing on day 30, for example, with a median realised yield of 0.92 % so far:
+The same Balanced vault, closed on day 30. Median realised gross yield to date is approximately 1.04 %.
 
 | Item | Value |
 |------|-------|
 | Deposit | 2.000 SOL |
-| Realised yield (gross) | 0.0207 SOL |
-| Service fee (11 %) | 0.0023 SOL |
-| Realised yield (net) | 0.0184 SOL |
-| Closure penalty (day 30, 2.063 %) | 0.0413 SOL |
+| Realised gross yield (day 30) | 0.0207 SOL |
+| Service fee (11 % of yield) | 0.0023 SOL |
+| Realised net yield | 0.0184 SOL |
+| Closure penalty (day 30: 2.063 % × 2 SOL) | 0.0413 SOL |
 | **Payout** | **1.977 SOL** |
 
 The closure penalty is the dominant cost in this example. Holding to day 96 would have avoided it entirely.
@@ -97,6 +90,6 @@ The closure penalty is the dominant cost in this example. Holding to day 96 woul
     The minimum return commitment after the service fee is taken.
   </Card>
   <Card title="Principal protection" icon="vault" href="/security/principal-protection">
-    What backs the principal on a normal close, and what the protection does not cover.
+    What backs the principal on a normal close, and what protection does not cover.
   </Card>
 </Columns>

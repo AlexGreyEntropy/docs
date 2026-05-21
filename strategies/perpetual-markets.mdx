@@ -4,34 +4,15 @@ description: "The hedge leg of a Thaler vault. How a short perpetual offsets the
 keywords: ["perpetuals", "funding rate", "Hyperliquid", "Pacifica", "delta neutral"]
 ---
 
-## What this leg does
+## Role within the vault
 
-The lending leg leaves the vault long SOL exposure: it holds staked SOL and re-staked SOL, so the value of the position rises and falls with the price of SOL. To make the vault delta neutral, a short perpetual position is opened in equal size.
+The staking and lending legs leave the vault long SOL exposure: the position holds staked SOL plus re-staked SOL, so its value moves with the price of SOL. To make the vault delta neutral, the hedge leg opens a short SOL perpetual position of equal size.
 
-When the price of SOL moves, the long staking exposure and the short perpetual exposure move in opposite directions. The two cancel out, and the user's payout reflects the yield earned rather than the price action.
+When the SOL spot price moves, the long staking exposure and the short perpetual exposure move in opposite directions. The two cancel out, and the user's payout reflects the rates earned rather than the price action.
 
-The short position also receives a funding rate when funding is positive. Historically, SOL perpetuals have spent most of their time in positive funding, so the hedge adds a third source of yield on top of staking and the lending spread.
-
-```mermaid
-flowchart LR
-  subgraph Long side
-    direction TB
-    L1[Staked SOL]
-    L2[Re-staked SOL]
-  end
-  subgraph Short side
-    direction TB
-    S1[Short SOL perpetual]
-  end
-  L1 -- delta --> Net((Delta neutral))
-  L2 -- delta --> Net
-  S1 -- delta --> Net
-  S1 -- funding --> Y([Funding income])
-```
+The short position also receives a funding rate when SOL perpetual funding is positive. Historically, SOL perpetuals have spent most of their time in positive funding, so the hedge adds a third source of yield on top of staking and the lending spread.
 
 ## Supported venues
-
-The hedge leg currently runs on **Hyperliquid** or **Pacifica**, selected per vault.
 
 | Venue | Status |
 |-------|--------|
@@ -41,52 +22,45 @@ The hedge leg currently runs on **Hyperliquid** or **Pacifica**, selected per va
 | Bullet | Coming next |
 | Bulk | Coming next |
 
-The selection is part of the policy extension and is locked at creation. The protocol chose Hyperliquid and Pacifica because they:
+The hedge currently runs on Hyperliquid or Pacifica, selected per vault. The selection is part of the policy extension and is locked at creation.
+
+These venues were chosen because they:
 
 - Publish funding rates in real time with a verifiable history.
 - Support SOL-USDC perpetuals with deep liquidity.
 - Expose a programmatic interface usable by the worker without manual intervention.
 
-When the next venues come online, vaults will route to whichever offers the best risk-adjusted funding profile at the moment of execution, subject to policy constraints.
+When the additional venues come online, vaults route to whichever offers the best risk-adjusted funding profile at the moment of execution, subject to policy constraints.
 
-## Why a perpetual instead of a future-dated short
+## Why a perpetual rather than a future-dated short
 
-A perpetual position never expires. It can be held for the lifetime of the vault without a roll, and its funding rate adjusts continuously to track the spot-futures basis. A future-dated short would require periodic rolls, each of which introduces slippage and a small operational risk window.
+A perpetual position never expires. It can be held for the lifetime of the vault without a roll, and its funding rate adjusts continuously to track the spot-futures basis. A future-dated short would require periodic rolls, each introducing slippage and a small operational risk window.
 
 Perpetuals also pay or receive funding every funding period, which lets the funding income compound rather than accumulate to a single settlement.
 
-## Funding income by regime
+## Behaviour by funding regime
 
-```mermaid
-flowchart LR
-  subgraph Bull regime
-    direction TB
-    B1[Funding strongly positive] --> B2[Short receives meaningful funding]
-  end
-  subgraph Sideways regime
-    direction TB
-    M1[Funding lightly positive] --> M2[Short receives small steady funding]
-  end
-  subgraph Bear regime
-    direction TB
-    R1[Funding briefly negative] --> R2[Worker reduces hedge size, holds delta neutral]
-  end
-```
+| Regime | Funding sign | Worker behaviour | Net effect on vault |
+|--------|--------------|-------------------|----------------------|
+| Bull | Strongly positive | Hedge held at full target size | Hedge contributes the largest share of return |
+| Sideways | Mildly positive | Hedge held at target size | Hedge contributes a steady, modest share |
+| Bear, brief | Briefly negative | Hedge size reduced; vault remains delta neutral | Hedge cost limited; carry continues |
+| Bear, sustained | Persistently negative | Hedge size minimised within the policy bounds | Carry from lending and staking dominates |
 
-In bull regimes the long side is paying perpetual longs more than usual, so the short side (which the vault is on) earns more. In bear regimes funding can flip negative for short periods, at which point the worker reduces the hedge size until the funding regime turns positive again.
+The vault never closes the hedge entirely while a lending leg is open. Doing so would leave the position directionally exposed, and the policy refuses any instruction that would create such an exposure.
 
 ## Leverage on the hedge
 
-The hedge leg uses leverage. The leverage is bounded by the policy extension and is chosen so that:
+The hedge leg uses leverage. The leverage is bounded by the policy extension and is calibrated so that:
 
-- A reasonable margin buffer protects against intra-day volatility.
+- A margin buffer protects against intra-day volatility.
 - The vault never operates within a margin-call distance of the venue's auto-deleveraging band.
 - Funding income is meaningful at the scale of the deposit.
 
-Higher leverage in the hedge is the main difference between the `Safe` and `YOLO` tiers of Thaler One. Higher leverage means a larger share of the realised yield comes from funding, and a larger share of the variance comes from funding regime changes. Lower leverage means the staking and lending pillars dominate the return.
+Higher leverage on the hedge is the principal difference between the `Safe` and `YOLO` tiers of Thaler One.
 
-| Tier | Funding contribution (typical) |
-|------|--------------------------------|
+| Tier | Funding contribution to net yield |
+|------|------------------------------------|
 | Safe | Smallest |
 | Conservative | Small |
 | Balanced | Roughly even with carry |
@@ -94,14 +68,16 @@ Higher leverage in the hedge is the main difference between the `Safe` and `YOLO
 | Aggressive | Dominant |
 | YOLO | Dominant and most variable |
 
-## What happens when funding flips negative
+Higher leverage increases the funding income but also increases the sensitivity of the realised return to funding regime changes.
+
+## Response when funding flips negative
 
 If funding turns negative, the short pays rather than receives. The worker has two levers:
 
 1. **Reduce the hedge size** so the negative funding bill shrinks. This trades hedge precision for lower funding cost.
 2. **Rebalance more frequently** so the position spends less time on the wrong side of the funding curve.
 
-Both moves are bounded by the policy. The vault never closes the hedge entirely while a lending leg is open, because that would leave the position directionally exposed.
+Both responses are bounded by the policy. Neither response is large enough to leave the position directionally exposed.
 
 ## Next read
 
