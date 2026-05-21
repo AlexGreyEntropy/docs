@@ -1,6 +1,14 @@
-<svg width="160" height="24" viewBox="0 0 160 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <g transform="translate(0,0)">
-    <path d="M 12 2 L 2 20 L 22 20 Z M 12 7 L 5.5 18 L 18.5 18 Z" fill="#fafafa" fillRule="evenodd"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 64" width="320" height="64">
+  <g fill="#fafafa" fill-rule="evenodd">
+    <!-- Thaler mark: outer circle with the inverted triangle inside -->
+    <path d="M 32 6
+             A 26 26 0 1 1 32 58
+             A 26 26 0 1 1 32 6
+             M 32 9
+             A 23 23 0 1 0 32 55
+             A 23 23 0 1 0 32 9 Z"/>
+    <path d="M 32 16 L 16 45 L 48 45 Z
+             M 32 24 L 21 42 L 43 42 Z"/>
   </g>
-  <text x="32" y="17" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="14" font-weight="600" fill="#fafafa" letter-spacing="-0.01em">Thaler Finance</text>
+  <text x="76" y="40" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="22" font-weight="700" fill="#fafafa" letter-spacing="-0.01em">Thaler Finance</text>
 </svg>
