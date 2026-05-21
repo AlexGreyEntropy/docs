@@ -1,22 +1,44 @@
 ---
 title: "Risk disclosure"
-description: "The residual risks of a Thaler vault that no on-chain policy can fully eliminate, in plain language."
+description: "The residual risks that no on-chain policy can fully eliminate. What Thaler covers, and what stays on the user."
 keywords: ["risk", "disclosure", "smart contract", "oracle", "counterparty"]
 ---
 
 ## How to read this page
 
-A Thaler vault is structured to remove as much risk as the protocol can. The Squads policy, the worker, the agent wallet and the protocol reserve work together to keep the deposit and the yield floor inside well-defined bounds.
+A Thaler vault is structured to remove as much risk as the protocol can. The Squads policy, the worker, the agent wallet, and the protocol reserve work together to keep the deposit and the yield floor inside well-defined bounds.
 
 That said, the vault interacts with third-party protocols on Solana that are independent of Thaler. These protocols have their own audit trails, their own governance, and their own risk profiles. The following risks remain and are not covered by the principal protection or the yield floor.
+
+## Risk surface at a glance
+
+```mermaid
+flowchart TB
+  subgraph Protocol scope
+    direction TB
+    P1[Strategy execution]
+    P2[Policy enforcement]
+    P3[Reserve top-up]
+  end
+  subgraph Outside scope
+    direction TB
+    O1[Third-party smart contracts]
+    O2[Oracles]
+    O3[Solana network]
+    O4[User keys]
+    O5[Regulatory environment]
+  end
+```
 
 ## Smart-contract risk
 
 The vault routes capital through several external programs:
 
-- The liquid staking provider (Jito or Marinade).
-- The lending market (Kamino).
-- The perpetual exchange (Hyperliquid or Pacifica).
+| Layer | Programs |
+|-------|----------|
+| Liquid staking | Jito, Marinade |
+| Lending | Kamino Lend |
+| Perpetual exchange | Hyperliquid, Pacifica |
 
 Each of these is audited and has been live for an extended period. None is perfect. If one of them is exploited and user funds are lost in the venue itself, the loss flows through to the vaults that were holding positions in it at the time. The protocol's reserve is not sized to absorb a full venue failure.
 
@@ -52,17 +74,26 @@ The user retains a key in the vault's Squads multisig. Loss of that key prevents
 
 ## Summary
 
-What Thaler guarantees:
+<Columns cols={2}>
+  <Card title="Thaler covers" icon="shield-check">
+    The deposit principal on a normal close, plus the per-tier yield floor on a full-year hold
+    without a smart-contract failure of an external venue.
+  </Card>
+  <Card title="Thaler does not cover" icon="triangle-exclamation">
+    Smart-contract failure of third-party protocols, oracle manipulation, Solana network
+    outages, loss of user keys, regulatory restrictions on the user's jurisdiction.
+  </Card>
+</Columns>
 
-- The deposit principal, on a normal close.
-- The per-tier yield floor on a full-year hold without a smart-contract failure of an
-  external venue.
+The user accepts these residual risks as part of the Terms and Policy Agreement signed at creation. The agreement is reproduced in the Create Vault flow and must be scrolled to the bottom and ticked before signing.
 
-What Thaler does not guarantee:
+## Next read
 
-- That the underlying third-party protocols will not fail.
-- That oracles will always price assets correctly.
-- That Solana will be available on every block.
-- That the user will retain access to the keys they hold.
-
-The user accepts these residual risks as part of the Terms and Policy Agreement signed at creation.
+<Columns cols={2}>
+  <Card title="Principal protection" icon="vault" href="/security/principal-protection">
+    What Thaler does cover, in detail, and how to verify the reserve that backs the commitment.
+  </Card>
+  <Card title="FAQ" icon="circle-question" href="/faq">
+    Short answers to the most common questions about Thaler.
+  </Card>
+</Columns>
