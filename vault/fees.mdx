@@ -1,0 +1,51 @@
+---
+title: "Fees"
+description: "The fees Thaler charges, when they are collected, and how to think about the net return."
+keywords: ["fees", "service fee", "vault creation fee", "closure penalty"]
+---
+
+## What you pay
+
+A Thaler vault has three fees over its lifetime. They are all transparent and all settled on chain.
+
+<AccordionGroup>
+  <Accordion title="Vault creation fee">
+    A small fixed fee paid at creation. It is denominated in SOL and is set so that creating a
+    vault does not require any other configuration. The current value is shown on the Create
+    Vault screen before you confirm the transaction.
+  </Accordion>
+  <Accordion title="Service fee">
+    A flat 11% of the realised yield, collected at claim time and at close time. The protocol
+    never takes a share of the deposit. If the vault produced no yield, the service fee is zero.
+  </Accordion>
+  <Accordion title="Closure penalty (only if applicable)">
+    A fee that starts at 3% of the deposit on day 0 and decays linearly to 0% by day 96. If you
+    close after day 96 there is no penalty. The schedule is enforced by the immutable policy and
+    cannot be waived by the protocol.
+  </Accordion>
+</AccordionGroup>
+
+## What you do not pay
+
+- **No deposit fee.** The full deposit enters the vault.
+- **No management fee.** The service fee is performance-based; if the vault earns nothing, the
+  protocol earns nothing.
+- **No withdrawal fee outside the penalty schedule.** Closing after day 96 is free.
+
+## Network fees
+
+The transactions that the worker emits on your vault's behalf pay Solana network fees. These are paid out of the vault's balance, not by the user, and are typically a few cents per transaction. They are not a Thaler fee; they are a Solana network cost.
+
+## How the net return is calculated
+
+The headline APY shown for each tier on the Strategies and Create Vault screens is the **net** APY. It already deducts the service fee from the gross strategy return. You do not need to subtract anything to compare across tiers.
+
+The yield floor advertised next to each tier is also a net number. The protocol guarantees that the floor will be paid, after the service fee is taken.
+
+## A worked example
+
+A vault deposited at 2 SOL with a tier showing a 10% net APY range:
+
+- After one year of running uninterrupted, the vault closes and pays the user `2 * (1 + 0.10) = 2.20 SOL` plus or minus the realised variance.
+- The service fee has already been deducted from the 10% headline before it was shown.
+- If the vault is closed before day 96, the closure penalty is deducted from the final amount according to the linear decay schedule.

@@ -1,0 +1,48 @@
+---
+title: "Lending markets"
+description: "The lending leg of a Thaler vault. How the deposit-borrow loop works, and why the spread is positive over time."
+keywords: ["lending", "Kamino", "borrow", "carry", "liquid staking collateral"]
+---
+
+## What this leg does
+
+After the staking leg, the vault holds a liquid staking token (jitoSOL or mSOL). The lending leg supplies that token as collateral on a lending market and borrows SOL against it. A portion of the borrowed SOL is restaked into the same liquid staking token; the remainder funds the perpetual hedge.
+
+The result is a position that earns three rates at once:
+
+1. Staking yield on the supplied liquid staking token.
+2. Lending yield on the supplied collateral, paid by other borrowers on the market.
+3. The negative of the borrow rate on the SOL drawn against it.
+
+The first two are paid to the vault; the third is paid by the vault. When the sum is positive, the leg adds yield. The protocol selects markets and configurations where the sum has been positive across the historical record.
+
+## Supported markets
+
+The lending leg currently runs on **Kamino Lend**. Kamino is a Solana lending market with on-chain liquidity, public reserves and well-documented liquidation parameters. The vault uses Kamino because:
+
+- It accepts jitoSOL and mSOL as supply collateral with reasonable loan-to-value caps.
+- Its borrow rate model is curve-based and updates continuously with utilisation, which makes the spread predictable.
+- It exposes a programmatic interface that the worker can use without manual intervention.
+
+Additional lending markets are planned for the next release:
+
+- **Jupiter Lend** (the lending side of Jupiter's product suite).
+- **MarginFi** (a Solana lending market with a different rate model).
+
+When these come online, vaults will route to whichever venue offers the best risk-adjusted spread at the moment of execution, subject to the constraints baked into the policy.
+
+## Loan-to-value and liquidation buffers
+
+The vault never operates at the maximum loan-to-value the market permits. The policy bakes in a buffer between the working LTV and the liquidation threshold so that ordinary market moves do not trigger a forced unwind. The size of the buffer is chosen so that:
+
+- Routine volatility does not bring the position close to liquidation.
+- A large adverse move triggers a rebalance, not a liquidation.
+- The worker has time to act before any external party can step in.
+
+The exact buffer and rebalance thresholds are part of the policy extension and visible on chain once a vault is created. They are not published in aggregate here because they would compose into the strategy signature.
+
+## Why the spread is usually positive
+
+Lending markets price borrow rates above supply rates. The vault is on both sides of the same market: it supplies a liquid staking token (earning supply yield plus the underlying staking yield) and borrows SOL (paying the SOL borrow rate). Across history, the supply yield plus the staking yield on the collateral has exceeded the borrow rate on SOL by a workable margin on Kamino.
+
+When the spread compresses or inverts, the worker reduces the size of the lending leg. When it widens, the worker can extend the leg back to its normal range. The decision is made within the policy bounds; nothing the worker does can move outside them.

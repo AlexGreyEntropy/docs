@@ -1,0 +1,39 @@
+---
+title: "Custody and policy"
+description: "Who holds the keys to your vault, who can sign on its behalf, and why the policy extension cannot be modified once signed."
+keywords: ["self custody", "Squads", "policy extension", "smart account"]
+---
+
+## Self-custodial by construction
+
+A Thaler vault is a Squads smart account. The user is a co-signer on that account from the moment it is created. The protocol cannot move funds out of the vault without the policy explicitly allowing it, and cannot bypass the policy at all.
+
+This is different from a managed product where a custodian holds the keys and the user holds a claim. In Thaler the user holds the keys; the protocol holds the rules.
+
+## What the policy controls
+
+The Squads policy extension binds the vault's behaviour. It defines:
+
+- **Allowed assets**: SOL, the liquid staking tokens the vault may hold, and the stablecoins the borrow leg accepts.
+- **Allowed venues**: the staking provider, the lending market, the perpetual venue and any liquidity pool the vault may interact with.
+- **Leverage cap**: an upper bound on the borrow ratio the lending leg may run.
+- **Claim cadence**: the 24-hour cooldown between yield claims.
+- **Closure procedure**: how the vault unwinds when the user requests a close, and what penalty schedule applies.
+
+Anything outside this list is rejected at the smart-account level.
+
+## Why the policy is immutable
+
+The value of a policy lies in its predictability. A policy that can be amended after signing offers no stronger guarantee than a normal off-chain agreement. Thaler chose immutability so that:
+
+- The user can verify the policy once and rely on it for the vault's lifetime.
+- Auditors can review the policy against the deployed program and the worker without needing to track ongoing amendments.
+- The protocol cannot change the rules under load, under pressure, or after a market move.
+
+If the protocol needs to update the rule set, it does so by deploying a new policy version. Existing vaults continue to operate under the policy they signed; users who want the new version must close the existing vault and open a new one.
+
+## Recovery and continuity
+
+Squads smart accounts can be recovered by the user even if the protocol disappears. The deposit and any accrued yield are held by the smart account, not by the protocol. As long as the user holds their share of the multisig, they can interact with the account directly.
+
+This means a Thaler vault is robust to protocol-level events that would normally strand funds. The dedicated worker is a convenience layer; it can be replaced or removed without losing access to the assets it manages.

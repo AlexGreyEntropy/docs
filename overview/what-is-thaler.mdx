@@ -1,0 +1,46 @@
+---
+title: "What is Thaler"
+description: "An overview of the protocol, who it is for, and what makes it different from other Solana yield products."
+keywords: ["Thaler", "delta neutral", "Solana yield", "self custodial vault"]
+---
+
+## In one paragraph
+
+Thaler is a Solana yield protocol that builds a delta-neutral position around a SOL deposit. Each user receives a self-custodial vault that allocates capital to three coordinated strategies. The realised return comes from staking rewards, the deposit-borrow spread on a lending market and the funding rate paid on a short perpetual position. Because the long staking exposure and the short perpetual exposure cancel out, the vault aims to earn yield without taking a directional view on the price of SOL.
+
+## Who it is for
+
+<Columns cols={2}>
+  <Card title="Holders of SOL" icon="coins">
+    Users who want yield on idle SOL without converting to a stablecoin and without giving up
+    custody.
+  </Card>
+  <Card title="Long-duration capital" icon="hourglass">
+    Capital that can stay in the vault long enough for the penalty schedule to decay to zero.
+  </Card>
+  <Card title="Audit and integration teams" icon="shield-check">
+    Reviewers who need to understand custody, claim cadence and closure rules before signing off
+    on an integration.
+  </Card>
+  <Card title="Builders" icon="puzzle">
+    Teams that want a vault primitive they can route deposits into from a wallet or aggregator.
+  </Card>
+</Columns>
+
+## What it is not
+
+Thaler is not a discretionary fund. The strategy executed by a vault is fixed at creation and enforced on chain. The protocol cannot widen the mandate, change the venues, or move assets outside the rules signed by the user.
+
+Thaler is not a directional bet on SOL. The hedge inside each vault is sized so that the value of the vault tracks the yield earned rather than the price of SOL.
+
+Thaler is not insurance. The protocol guarantees the per-tier yield floor it advertises at the moment a vault is created and protects deposit principal through its reserve, but the third-party venues the vault interacts with carry residual smart-contract and counterparty risk that no policy can fully eliminate. See [Risk disclosure](/security/risk-disclosure).
+
+## Why delta-neutral
+
+A long-only position in SOL earns staking and lending yield but exposes the user to the price of SOL. A short-only position pays or receives funding and exposes the user to the same price in reverse. Pairing both sides at matching size cancels out the directional exposure and leaves the yield differential. Thaler structures vaults so the user benefits from this differential without managing the legs individually.
+
+## How the beta differs from the production build
+
+The current beta accepts a fixed deposit of 2 SOL per vault. The protocol uses this to equalise capacity across early users and to keep operational variance low during the first wave. After the beta closes, deposit sizing becomes variable and the protocol opens additional strategy families beyond Thaler One.
+
+The rest of the product is identical to the production target: same custody model, same claim mechanics, same closure rules. The beta does not collect any data the production build will not collect.
