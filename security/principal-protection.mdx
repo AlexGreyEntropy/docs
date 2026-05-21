@@ -1,6 +1,6 @@
 ---
 title: "Principal protection"
-description: "How Thaler protects the deposit and what protection means in practice."
+description: "How Thaler protects the deposit, what protection covers, and how to verify the reserve that backs the commitment."
 keywords: ["principal protection", "reserve", "Squads policy", "deposit safety"]
 ---
 
@@ -15,16 +15,25 @@ The deposit principal sent to a Thaler vault is protected from loss caused by:
 
 Protection means that, on a normal close, the user receives back at least the SOL amount they deposited, in SOL.
 
-## How the protection works
+## The two mechanisms
 
-Two mechanisms combine to deliver the protection.
+```mermaid
+flowchart TB
+  D([Deposit]) --> V[(Vault)]
+  V --> P1{In-policy guardrails}
+  P1 -- ordinary variance --> V
+  V --> P2{Realised payout at close}
+  P2 -- shortfall --> R([Protocol reserve])
+  R -- top-up --> Payout([Principal returned])
+  P2 -- no shortfall --> Payout
+```
 
 <Steps>
   <Step title="The immutable policy">
     The Squads policy extension constrains the strategy so that the worker cannot put the
-    deposit into a position outside the protocol's risk budget. The leverage cap, the loan-to
-    value buffer, the venue allowlist and the rebalance rules are all encoded in the policy.
-    Nothing the worker emits can take the position past those bounds.
+    deposit into a position outside the protocol's risk budget. The leverage cap, the
+    loan-to-value buffer, the venue allowlist, and the rebalance rules are all encoded in the
+    policy. Nothing the worker emits can take the position past those bounds.
   </Step>
   <Step title="The protocol reserve">
     Thaler maintains a protocol reserve denominated in SOL. The reserve sits outside any
@@ -34,30 +43,60 @@ Two mechanisms combine to deliver the protection.
   </Step>
 </Steps>
 
-The two mechanisms operate in series. The policy prevents excursions large enough to consume the reserve in ordinary conditions; the reserve covers the tail where the policy alone is not enough.
+The two mechanisms operate in series. The policy prevents excursions large enough to consume the reserve in ordinary conditions. The reserve covers the tail where the policy alone is not enough.
 
 ## What protection does not cover
 
 Principal protection does not cover:
 
-- **Smart-contract failure of a third-party venue**. If Kamino, the perpetual exchange, or the
-  liquid staking provider lose user funds due to a bug, exploit, or governance event, the loss
-  flows through to the vault. This is the residual risk no on-chain policy can fully eliminate.
-- **Loss of user keys**. If you lose access to the wallet that co-signs the vault, the protocol
-  cannot restore it.
-- **User action outside the protocol**. Anything signed by the user with a malicious external
-  application is outside the protocol's scope.
+| Scenario | Why it is excluded |
+|----------|--------------------|
+| Smart-contract failure of a third-party venue | The protocol cannot underwrite the security of Kamino, the perpetual exchanges, or the liquid staking providers. |
+| Loss of user keys | The protocol cannot recover a wallet the user no longer controls. |
+| User action outside the protocol | Anything signed by the user with a malicious external application is outside scope. |
+| Closure inside the penalty schedule | The penalty is part of the contract the user accepts. Closing after day 96 has no penalty and full protection applies. |
 
 These cases are described in detail under [Risk disclosure](/security/risk-disclosure).
 
 ## How to verify the protection
 
-Every vault's policy extension is readable on chain. Inspect the smart account address, follow it to the policy, and confirm that the allowed venues, leverage cap and procedural rules match the published strategy specification. The protocol cannot show you one policy and deploy another.
-
-The protocol reserve is held in a dedicated, public Squads vault. The address is available on request, with both inflow and outflow visible to anyone with a block explorer.
+<Steps>
+  <Step title="Find your vault address">
+    The Squads smart account address is shown under the vault number on the My Vaults screen.
+  </Step>
+  <Step title="Open a block explorer">
+    Paste the address into [Solscan](https://solscan.io) or
+    [Solana Explorer](https://explorer.solana.com).
+  </Step>
+  <Step title="Read the policy extension">
+    The policy lists the allowed programs, the leverage cap, the rebalance rules, and the
+    closure procedure. The on-chain policy and the strategy summary in the app should agree
+    exactly.
+  </Step>
+  <Step title="Locate the reserve">
+    The protocol reserve is a dedicated public Squads vault. Its address is available on
+    request via `audit@thaler.finance`. Both inflow and outflow are visible to anyone with a
+    block explorer.
+  </Step>
+</Steps>
 
 ## Why protection is meaningful
 
 Many DeFi products advertise high yields with no commitment on the principal. Thaler chose a different posture: the yield is variable but the deposit is anchored. This shifts the question for the user from "can I afford to lose my deposit?" to "do I like the expected yield band?".
 
 The trade-off the protocol makes for this guarantee is built into the reserve sizing and the service fee. Both are calibrated so the protocol can keep the commitment across the full historical record of the supported venues.
+
+## How the reserve is sized
+
+The reserve is sized against the worst observed annual outcome in the V12 walk-forward backtest across the supported venues. The protocol keeps a buffer above the historical worst case so that an outlier year cannot exhaust the reserve. As capacity grows, the reserve grows in step. The protocol publishes the reserve size and the vault count it backs in the analytics endpoints.
+
+## Next read
+
+<Columns cols={2}>
+  <Card title="Yield floor" icon="shield-check" href="/security/yield-floor">
+    The minimum return commitment that sits on top of the principal protection.
+  </Card>
+  <Card title="Risk disclosure" icon="triangle-exclamation" href="/security/risk-disclosure">
+    The residual risks no on-chain policy can fully eliminate.
+  </Card>
+</Columns>

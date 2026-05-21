@@ -1,6 +1,6 @@
 ---
 title: "Lending markets"
-description: "The lending leg of a Thaler vault. How the deposit-borrow loop works, and why the spread is positive over time."
+description: "The lending leg of a Thaler vault. How the deposit-borrow loop works, why the spread is positive over time, and how the policy bounds the position."
 keywords: ["lending", "Kamino", "borrow", "carry", "liquid staking collateral"]
 ---
 
@@ -8,28 +8,42 @@ keywords: ["lending", "Kamino", "borrow", "carry", "liquid staking collateral"]
 
 After the staking leg, the vault holds a liquid staking token (jitoSOL or mSOL). The lending leg supplies that token as collateral on a lending market and borrows SOL against it. A portion of the borrowed SOL is restaked into the same liquid staking token; the remainder funds the perpetual hedge.
 
-The result is a position that earns three rates at once:
+The result is a position that earns three rates simultaneously:
 
-1. Staking yield on the supplied liquid staking token.
-2. Lending yield on the supplied collateral, paid by other borrowers on the market.
-3. The negative of the borrow rate on the SOL drawn against it.
+1. **Staking yield** on the supplied liquid staking token.
+2. **Lending yield** on the supplied collateral, paid by other borrowers on the market.
+3. The **negative of the borrow rate** on the SOL drawn against it.
 
-The first two are paid to the vault; the third is paid by the vault. When the sum is positive, the leg adds yield. The protocol selects markets and configurations where the sum has been positive across the historical record.
+The first two are paid to the vault. The third is paid by the vault. When the sum is positive, the leg adds yield. The protocol selects markets and configurations where the sum has been positive across the historical record.
+
+```mermaid
+flowchart LR
+  S([Liquid staking token]) -- supply --> K[(Kamino reserve)]
+  K -- borrow SOL --> B[Borrowed SOL]
+  B -- restake share --> S
+  B -- hedge share --> H[Short perpetual]
+  K -- supply yield --> Y([Net spread])
+  S -- staking yield --> Y
+  K -. borrow cost .-> Y
+```
 
 ## Supported markets
 
-The lending leg currently runs on **Kamino Lend**. Kamino is a Solana lending market with on-chain liquidity, public reserves and well-documented liquidation parameters. The vault uses Kamino because:
+The lending leg currently runs on **Kamino Lend**. Kamino is a Solana lending market with on-chain liquidity, public reserves, and well-documented liquidation parameters. The vault uses Kamino because:
 
 - It accepts jitoSOL and mSOL as supply collateral with reasonable loan-to-value caps.
 - Its borrow rate model is curve-based and updates continuously with utilisation, which makes the spread predictable.
 - It exposes a programmatic interface that the worker can use without manual intervention.
 
-Additional lending markets are planned for the next release:
+Additional lending markets are queued for the next release.
 
-- **Jupiter Lend** (the lending side of Jupiter's product suite).
-- **MarginFi** (a Solana lending market with a different rate model).
+| Market | Status |
+|--------|--------|
+| Kamino Lend | Live |
+| Jupiter Lend | Coming next |
+| MarginFi | Coming next |
 
-When these come online, vaults will route to whichever venue offers the best risk-adjusted spread at the moment of execution, subject to the constraints baked into the policy.
+When the next markets come online, vaults will route to whichever venue offers the best risk-adjusted spread at the moment of execution, subject to the constraints in the policy.
 
 ## Loan-to-value and liquidation buffers
 
@@ -45,4 +59,40 @@ The exact buffer and rebalance thresholds are part of the policy extension and v
 
 Lending markets price borrow rates above supply rates. The vault is on both sides of the same market: it supplies a liquid staking token (earning supply yield plus the underlying staking yield) and borrows SOL (paying the SOL borrow rate). Across history, the supply yield plus the staking yield on the collateral has exceeded the borrow rate on SOL by a workable margin on Kamino.
 
-When the spread compresses or inverts, the worker reduces the size of the lending leg. When it widens, the worker can extend the leg back to its normal range. The decision is made within the policy bounds; nothing the worker does can move outside them.
+```mermaid
+flowchart LR
+  subgraph Per dollar in the lending leg
+    direction TB
+    SY[Staking yield on collateral · positive]
+    LY[Lending supply yield · positive]
+    BR[SOL borrow rate · negative]
+    NET[Net spread · positive in steady state]
+    SY --> NET
+    LY --> NET
+    BR --> NET
+  end
+```
+
+When the spread compresses or inverts, the worker reduces the size of the lending leg. When it widens, the worker can extend the leg back to its normal range. The decision is made within the policy bounds; nothing the worker does can move the leg outside them.
+
+## How the worker reacts to rate changes
+
+| Event | Worker response |
+|-------|------------------|
+| Borrow rate rises above the configured threshold | Reduce the lending leg, increase the hedge weight |
+| Supply yield drops on Kamino | Reduce the leg until the spread is positive again |
+| LTV approaches the buffer line | Rebalance by repaying borrow before liquidation can be triggered |
+| Liquid staking token discount widens | Pause new borrows, hold existing position, route the next vault to the other LST |
+
+Every response is bounded by the policy extension. There is no override path.
+
+## Next read
+
+<Columns cols={2}>
+  <Card title="Perpetual markets" icon="scale" href="/strategies/perpetual-markets">
+    The hedge leg that pairs with the long SOL exposure introduced here.
+  </Card>
+  <Card title="Custody and policy" icon="key" href="/overview/custody-and-policy">
+    How the LTV buffer, leverage cap, and rebalance thresholds live inside the policy extension.
+  </Card>
+</Columns>
