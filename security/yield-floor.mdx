@@ -1,107 +1,96 @@
 ---
 title: "Yield floor"
-description: "The minimum return Thaler commits to pay per tier on a full-year hold. How the floor is derived from the backtest, and how it is honoured when realised yield falls short."
+description: "The minimum return Thaler commits to pay per tier on a full-year hold. How the floor is derived from the backtest and how it is honoured when realised yield falls short."
 keywords: ["yield floor", "guaranteed yield", "minimum return", "delta neutral"]
 ---
 
-## What the yield floor is
+## Commitment
 
-Each Thaler tier advertises a **yield floor** alongside its APY range. The floor is the minimum realised return the protocol commits to pay on a full-year hold of the vault.
-
-The yield floor is shown:
+Each Thaler tier advertises a **yield floor** alongside its APY range. The floor is the minimum realised return the protocol commits to pay on a full-year hold of the vault. It is shown:
 
 - Next to the APY range on the Strategies page.
 - On every tier card in the Create Vault selector.
 - Under the strategy summary on the My Vaults dashboard.
 
-| Tier | Yield floor (net of service fee) |
-|------|----------------------------------|
-| Safe | 7.0 % |
-| Conservative | 7.1 % |
-| Balanced | 7.3 % |
-| Optimistic | 7.5 % |
-| Aggressive | 7.8 % |
-| YOLO | 8.1 % |
+| Tier | APY band (net) | Yield floor (net) |
+|------|----------------|-------------------|
+| Safe | 8.2 % to 13.8 % | 7.0 % |
+| Conservative | 8.4 % to 14.1 % | 7.1 % |
+| Balanced | 8.7 % to 14.8 % | 7.3 % |
+| Optimistic | 9.1 % to 15.6 % | 7.5 % |
+| Aggressive | 9.6 % to 17.2 % | 7.8 % |
+| YOLO | 10.2 % to 19.8 % | 8.1 % |
 
 Higher-tier vaults run at higher leverage on the hedge and carry more variance, but the floor moves up with the tier so the commitment stays meaningful at every level.
 
-## How the floor is derived
+## Derivation
 
-The protocol does not pick the floor arbitrarily. It is derived from the V12 walk-forward backtest of the strategy across the full live history of the supported venues.
+The protocol does not select the floor arbitrarily. It is derived from the V12 walk-forward backtest of the strategy across the full live history of the supported venues.
 
 <Steps>
-  <Step title="Run the strategy over every 12-month window">
+  <Step title="Run the strategy over every twelve-month window">
     For each tier, simulate the realised payout assuming the user closes after a full year.
   </Step>
   <Step title="Collect the end-of-window returns">
     Build a distribution of realised returns across every starting date in the dataset.
   </Step>
   <Step title="Take the worst observed return">
-    The lowest realised return in the distribution sets the upper bound of the floor.
+    The lowest realised return in the distribution sets an upper bound on the floor.
   </Step>
   <Step title="Apply a safety margin">
-    The floor is set below the worst observed return so a year that is slightly worse than any
+    The floor is set below the worst observed return so a year slightly worse than any
     historical year is still inside the commitment.
   </Step>
 </Steps>
 
-```mermaid
-flowchart LR
-  H[Historical 12-month returns] --> D[Distribution per tier]
-  D --> W[Worst observed]
-  W -- minus safety margin --> F[Published floor]
-```
+The floor is not a forward projection. It is a backward-derived commitment designed to hold even if the next year is worse than any past year on record.
 
-The floor is not a forward projection. It is a backward-derived commitment, designed to hold even if the next year is worse than any past year on record.
-
-## How the floor is paid
+## Payout mechanics
 
 When a vault closes and the realised return is below the floor, the protocol reserve covers the gap. The user receives at least the floor amount, net of the service fee.
 
-If the realised return exceeds the floor, the user receives the realised return. The floor is a floor, not a ceiling. Nothing about the yield floor caps the upside.
+If the realised return exceeds the floor, the user receives the realised return. The floor is a lower bound, not an upper bound. Nothing about the yield floor caps the upside.
 
-```mermaid
-flowchart LR
-  V[(Vault payout at close)] --> Cmp{Realised ≥ floor?}
-  Cmp -- yes --> Pay([User receives realised yield])
-  Cmp -- no --> R[Reserve tops up]
-  R --> Pay
+The formal payout rule:
+
 ```
+payout_net = deposit + max(realised_net_yield, floor_amount)
+```
+
+where `floor_amount = deposit × floor_apy × (holding_days / 365)`. For a 2 SOL deposit on the Balanced tier (floor 7.3 %) held for a full year, the floor amount is `2 × 0.073 = 0.146 SOL`.
 
 ## What can break the floor
 
 Two scenarios are explicitly outside the floor:
 
-- **Smart-contract failure of a third-party venue.** If a venue loses funds outside the
-  protocol's control, the floor does not apply to that loss. This is the residual risk
-  described in [Risk disclosure](/security/risk-disclosure).
-- **A close inside the penalty schedule.** Closing before day 96 incurs a fee that is deducted
-  from the payout. The fee can reduce the SOL amount below the deposit even if the gross
-  realised yield was at the floor. After day 96, the penalty is zero and the floor applies in
-  full.
+| Scenario | Effect |
+|----------|--------|
+| Smart-contract failure of a third-party venue | The floor does not apply to losses that originate in a venue's contract |
+| Closure before day 96 | The closure penalty is deducted from the payout; on early close the floor still applies, but the penalty can leave the user with less than the floor in net SOL terms |
 
-## Why a floor and not a fixed APY
+After day 96 the penalty is zero. The floor applies in full and there is no offset.
+
+## Why a floor rather than a fixed APY
 
 A fixed APY would imply the protocol can guarantee the exact return regardless of market conditions. That would require either:
 
-- Stripping the variable upside (the user gets exactly the fixed rate even when conditions are
-  excellent), or
+- Stripping the variable upside (the user gets exactly the fixed rate even when conditions are excellent), or
 - Promising more than the protocol can sustainably deliver.
 
 A floor preserves the variable upside the strategy actually produces and commits the protocol to a tested lower bound. Users participate in the realised yield above the floor and are protected below it.
 
-## How the floor relates to principal protection
+## Relationship to principal protection
 
-[Principal protection](/security/principal-protection) and the yield floor are separate commitments. Principal protection ensures you receive at least the deposit back. The yield floor ensures you receive at least the floor return on top of the deposit.
+[Principal protection](/security/principal-protection) and the yield floor are separate commitments. Principal protection ensures the user receives at least the deposit back. The yield floor ensures the user receives at least the floor return on top of the deposit.
 
 | Outcome | Principal protection | Yield floor | Total payout |
 |---------|---------------------|-------------|--------------|
-| Best case | Active | Active | Deposit + realised yield above floor |
-| Median case | Active | Active | Deposit + realised yield (above floor) |
-| Worst supported case | Active | Active | Deposit + floor |
+| Best | Active | Active | Deposit + realised yield (above floor) |
+| Median | Active | Active | Deposit + realised yield (above floor) |
+| Worst supported | Active | Active | Deposit + floor |
 | Smart-contract failure | Not covered | Not covered | Partial recovery only |
 
-In the worst supported case, the user receives `deposit + floor`. In the best case, the user receives `deposit + realised yield` where realised yield is the strategy's actual performance.
+In the worst supported case the user receives `deposit + floor`. In the best case the user receives `deposit + realised_yield` where `realised_yield` is the strategy's actual performance.
 
 ## Next read
 

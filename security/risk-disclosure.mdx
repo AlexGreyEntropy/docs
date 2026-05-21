@@ -4,33 +4,25 @@ description: "The residual risks that no on-chain policy can fully eliminate. Wh
 keywords: ["risk", "disclosure", "smart contract", "oracle", "counterparty"]
 ---
 
-## How to read this page
+## Scope of this document
 
 A Thaler vault is structured to remove as much risk as the protocol can. The Squads policy, the worker, the agent wallet, and the protocol reserve work together to keep the deposit and the yield floor inside well-defined bounds.
 
-That said, the vault interacts with third-party protocols on Solana that are independent of Thaler. These protocols have their own audit trails, their own governance, and their own risk profiles. The following risks remain and are not covered by the principal protection or the yield floor.
+The vault also interacts with third-party protocols on Solana that are independent of Thaler. These protocols have their own audit trails, governance, and risk profiles. The following risks remain and are not covered by principal protection or the yield floor.
 
-## Risk surface at a glance
+## Risk inventory
 
-```mermaid
-flowchart TB
-  subgraph Protocol scope
-    direction TB
-    P1[Strategy execution]
-    P2[Policy enforcement]
-    P3[Reserve top-up]
-  end
-  subgraph Outside scope
-    direction TB
-    O1[Third-party smart contracts]
-    O2[Oracles]
-    O3[Solana network]
-    O4[User keys]
-    O5[Regulatory environment]
-  end
-```
+| Risk | Description | Mitigation |
+|------|-------------|------------|
+| Smart-contract risk | External programs (Kamino, Hyperliquid, Pacifica, Jito, Marinade) can be exploited or fail | Route only through venues with multi-year live history and public audit reports; cap per-venue exposure in the policy |
+| Oracle risk | Lending and perpetual venues price collateral from external oracles; stale or manipulated quotes can trigger unfavourable liquidations | Use venues with multi-source oracles and circuit breakers; the policy holds an LTV buffer below the liquidation threshold |
+| Counterparty risk | Perpetual venues can socialise losses through auto-deleveraging during extreme deleveraging events | Cap leverage well below the venue's auto-deleveraging band |
+| Operational risk | Worker downtime reduces strategy efficiency | Policy buffers ensure downtime cannot push the position into liquidation; vault continues to accrue staking and lending yield |
+| Network risk | Solana congestion or outages prevent rebalancing | Policy buffers accommodate multi-hour outages; longer outages defer closes until the network recovers |
+| Regulatory risk | The regulatory environment may change | The protocol monitors jurisdictions and may restrict access where operations become non-compliant |
+| Key management risk | Loss of the user's wallet key prevents signing claims or closes | The protocol cannot recover lost keys; users should follow secure wallet practices |
 
-## Smart-contract risk
+## Smart-contract risk in detail
 
 The vault routes capital through several external programs:
 
@@ -40,50 +32,30 @@ The vault routes capital through several external programs:
 | Lending | Kamino Lend |
 | Perpetual exchange | Hyperliquid, Pacifica |
 
-Each of these is audited and has been live for an extended period. None is perfect. If one of them is exploited and user funds are lost in the venue itself, the loss flows through to the vaults that were holding positions in it at the time. The protocol's reserve is not sized to absorb a full venue failure.
+Each program is audited and has been live for an extended period. None is perfect. If one is exploited and user funds are lost in the venue itself, the loss flows through to the vaults holding positions in it at the time. The protocol's reserve is not sized to absorb a full venue failure.
 
 The protocol mitigates this risk by:
 
 - Routing only through venues with multi-year live history and public audit reports.
-- Constraining the maximum exposure to any single venue inside the policy.
-- Diversifying across at least two venues per strategy leg where possible.
+- Capping the maximum exposure to any single venue inside the policy.
+- Diversifying across at least two venues per strategy leg where the venue list supports it.
 
-## Oracle risk
+## What Thaler covers
 
-Lending markets and perpetual exchanges price collateral and positions from external oracles. If an oracle reports a stale or manipulated price, a liquidation could trigger at an unfavourable level. Venues like Kamino and Hyperliquid use multi-source oracles with circuit breakers; the protocol relies on those circuit breakers and does not run its own.
+| Coverage | Trigger |
+|----------|---------|
+| Deposit principal | Normal close (any time, with the penalty schedule applied to early closes) |
+| Per-tier yield floor | Full-year hold without a smart-contract failure of an external venue |
 
-## Counterparty risk
+The covers are documented in [Principal protection](/security/principal-protection) and [Yield floor](/security/yield-floor).
 
-The perpetual hedge runs against the venue's liquidation engine. In an extreme deleveraging event, the venue can socialise losses across counterparties. The probability is low on the supported venues but is not zero.
+## What Thaler does not cover
 
-## Operational risk
-
-The dedicated Cloudflare Worker can fail to react in time to a fast-moving market. The policy is designed so that worker downtime does not let the position drift into liquidation, but the strategy is less efficient during downtime than during normal operation. Extended downtime can reduce yield without breaching the floor.
-
-## Network risk
-
-Solana itself can experience congestion or outages. During a network outage, transactions cannot be sent and the position cannot be rebalanced. The policy bakes in buffers so that an outage of a few hours does not threaten the position; a longer outage that prevents settlement on close would push the close into the recovery window.
-
-## Regulatory risk
-
-Thaler operates in a regulatory environment that may change. The protocol monitors the jurisdictions of its userbase and reserves the right to restrict access from any jurisdiction where its operations become non-compliant.
-
-## Key management risk
-
-The user retains a key in the vault's Squads multisig. Loss of that key prevents the user from signing closures and claims. The protocol cannot recover lost user keys. Use a wallet you trust and keep a record of its recovery phrase.
-
-## Summary
-
-<Columns cols={2}>
-  <Card title="Thaler covers" icon="shield-check">
-    The deposit principal on a normal close, plus the per-tier yield floor on a full-year hold
-    without a smart-contract failure of an external venue.
-  </Card>
-  <Card title="Thaler does not cover" icon="triangle-exclamation">
-    Smart-contract failure of third-party protocols, oracle manipulation, Solana network
-    outages, loss of user keys, regulatory restrictions on the user's jurisdiction.
-  </Card>
-</Columns>
+- Smart-contract failure of a third-party protocol.
+- Oracle manipulation or stale-price liquidations.
+- Solana network outages that prevent timely settlement.
+- Loss of user keys.
+- Regulatory restrictions on the user's jurisdiction.
 
 The user accepts these residual risks as part of the Terms and Policy Agreement signed at creation. The agreement is reproduced in the Create Vault flow and must be scrolled to the bottom and ticked before signing.
 
@@ -91,7 +63,7 @@ The user accepts these residual risks as part of the Terms and Policy Agreement 
 
 <Columns cols={2}>
   <Card title="Principal protection" icon="vault" href="/security/principal-protection">
-    What Thaler does cover, in detail, and how to verify the reserve that backs the commitment.
+    What Thaler does cover and how to verify the reserve that backs the commitment.
   </Card>
   <Card title="FAQ" icon="circle-question" href="/faq">
     Short answers to the most common questions about Thaler.

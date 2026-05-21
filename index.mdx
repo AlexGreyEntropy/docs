@@ -5,67 +5,53 @@ keywords:
   ["Thaler Finance", "Solana", "delta neutral", "SOL yield", "Squads", "liquid staking", "DeFi"]
 ---
 
-Thaler turns a SOL deposit into a yield position that is delta-neutral, self-custodial, and bounded by a rule set you sign at creation. The protocol guarantees a per-tier yield floor and protects the principal. Realised return above the floor moves with market conditions across three coordinated strategies.
+## Abstract
 
-```mermaid
-flowchart LR
-  Deposit([Your deposit · 2 SOL]) --> Vault[(Your vault)]
-  Vault --> Stake[Liquid staking]
-  Stake --> Lend[Lending market]
-  Lend --> Restake[Restake]
-  Lend --> Hedge[Short perpetual]
-  Restake --> Yield([Yield])
-  Hedge --> Yield
-  Stake --> Yield
-  Yield --> Wallet([Back to your wallet])
-```
+Thaler is a Solana protocol that converts a SOL deposit into a delta-neutral yield position. Each vault allocates capital across three coordinated strategies: liquid staking, a lending loop, and a short perpetual hedge. Because the long staking exposure and the short perpetual exposure cancel out, the realised return tracks the rates earned (staking yield, deposit-borrow spread, perpetual funding), not the price of SOL. The protocol guarantees a per-tier minimum return and protects the principal through a public, on-chain reserve.
 
-## Read in this order
+This documentation describes the product at a level suitable for depositors, integrators, and reviewers. It does not publish strategy parameters, position sizes, or operational thresholds.
 
-<Steps>
-  <Step title="Understand the product">
-    Start with [What is Thaler](/overview/what-is-thaler). One page, plain language, no
-    background reading required.
-  </Step>
-  <Step title="Understand the structure">
-    Read [Architecture](/overview/architecture) and [Custody and policy](/overview/custody-and-policy)
-    to see how the vault is built and why no party can move your funds without rules you signed.
-  </Step>
-  <Step title="Understand the strategies">
-    Open [Strategies](/strategies/index) and the three pillar pages. Each pillar earns yield
-    from a different source so the total return is more stable than any one source on its own.
-  </Step>
-  <Step title="Understand the operations">
-    Walk through [Creating a vault](/vault/create), [Claiming yield](/vault/claim) and
-    [Closing a vault](/vault/close). Three operations cover the entire lifecycle.
-  </Step>
-  <Step title="Understand the guarantees">
-    Read [Principal protection](/security/principal-protection), [Yield floor](/security/yield-floor)
-    and [Risk disclosure](/security/risk-disclosure) before you deposit.
-  </Step>
-</Steps>
+## Document map
 
-## What makes Thaler different
+The pages are designed to be read in order, but each is self-contained.
 
-<Columns cols={2}>
-  <Card title="A yield floor that is guaranteed" icon="shield-check">
-    Every tier advertises a minimum return the protocol commits to pay. The floor is derived
-    from the worst historical year for that tier with a margin underneath. See
-    [Yield floor](/security/yield-floor).
-  </Card>
-  <Card title="Principal protected by the reserve" icon="vault">
-    The protocol holds a SOL reserve that tops up any shortfall on a normal close. The reserve
-    is a public Squads vault. See [Principal protection](/security/principal-protection).
-  </Card>
-  <Card title="Self-custody by default" icon="key">
-    Every vault is a Squads smart account you co-sign. The protocol holds the rules, not the
-    keys. See [Custody and policy](/overview/custody-and-policy).
-  </Card>
-  <Card title="A strategy you can verify" icon="binary">
-    The Squads policy extension is signed once and enforced on chain. Anyone with a block
-    explorer can read the policy and confirm what the vault can and cannot do.
-  </Card>
-</Columns>
+<table>
+  <thead>
+    <tr><th>Section</th><th>Page</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr><td rowSpan={3}>Overview</td><td>[What is Thaler](/overview/what-is-thaler)</td><td>Product description and the case for delta-neutrality</td></tr>
+    <tr><td>[Architecture](/overview/architecture)</td><td>The four components of a vault and how they coordinate</td></tr>
+    <tr><td>[Custody and policy](/overview/custody-and-policy)</td><td>Self-custody model, the policy extension, and how to verify a vault</td></tr>
+    <tr><td rowSpan={4}>Strategies</td><td>[Strategies overview](/strategies/index)</td><td>The three-pillar design and the six Thaler One tiers</td></tr>
+    <tr><td>[Liquid staking](/strategies/liquid-staking)</td><td>The staking leg, supported tokens, and provider selection</td></tr>
+    <tr><td>[Lending markets](/strategies/lending-markets)</td><td>The deposit-borrow loop on Kamino</td></tr>
+    <tr><td>[Perpetual markets](/strategies/perpetual-markets)</td><td>The short hedge on Hyperliquid and Pacifica</td></tr>
+    <tr><td rowSpan={4}>Vault lifecycle</td><td>[Creating a vault](/vault/create)</td><td>Walk-through of the creation flow</td></tr>
+    <tr><td>[Claiming yield](/vault/claim)</td><td>How yield accrues and the 24-hour claim cooldown</td></tr>
+    <tr><td>[Closing a vault](/vault/close)</td><td>The single-transaction unwind and the penalty decay schedule</td></tr>
+    <tr><td>[Fees](/vault/fees)</td><td>The three fee components and a worked example</td></tr>
+    <tr><td rowSpan={3}>Security</td><td>[Principal protection](/security/principal-protection)</td><td>What protection means and how to verify the reserve</td></tr>
+    <tr><td>[Yield floor](/security/yield-floor)</td><td>How the floor is derived and honoured</td></tr>
+    <tr><td>[Risk disclosure](/security/risk-disclosure)</td><td>Residual risks that no on-chain policy can eliminate</td></tr>
+    <tr><td>Help</td><td>[FAQ](/faq)</td><td>Short answers to the most common questions</td></tr>
+  </tbody>
+</table>
+
+## Position summary
+
+| Property | Value |
+|----------|-------|
+| Deposit asset | SOL (or USDC, swapped on-chain via LI.FI) |
+| Deposit size (beta) | 2 SOL, fixed |
+| Custody | Self-custodial Squads smart account |
+| Strategy mandate | Immutable Squads policy extension, signed at creation |
+| Execution | Dedicated worker, agent wallet co-signs within the policy |
+| Claim cadence | On demand, subject to a 24-hour cooldown per vault |
+| Closure | Single transaction, penalty decays from 3 % to 0 % over 96 days |
+| Net APY (per tier) | 8.2 % to 19.8 %, depending on tier |
+| Yield floor (per tier) | 7.0 % to 8.1 %, guaranteed by protocol reserve |
+| Service fee | 11 % of realised yield only |
 
 ## Beta program
 
@@ -75,7 +61,7 @@ flowchart LR
   Variable deposit sizing opens after the beta closes.
 </Note>
 
-The beta is otherwise identical to the production target. Same custody model, same claim mechanics, same closure rules. The protocol does not collect any data during the beta that it will not collect in production.
+The beta is otherwise identical to the production target. Same custody model, same claim mechanics, same closure rules.
 
 ## Where to next
 
@@ -83,10 +69,10 @@ The beta is otherwise identical to the production target. Same custody model, sa
   <Card title="Open the app" icon="arrow-up-right-from-square" href="https://thaler.finance">
     Connect a Solana wallet and create a vault.
   </Card>
-  <Card title="Read the strategy pillars" icon="line-chart" href="/strategies/index">
-    The three sources of yield and how they coordinate.
+  <Card title="Read the overview" icon="book-open" href="/overview/what-is-thaler">
+    Start with the product description.
   </Card>
-  <Card title="Check the FAQ" icon="circle-question" href="/faq">
+  <Card title="FAQ" icon="circle-question" href="/faq">
     Short answers to the most common questions.
   </Card>
 </Columns>

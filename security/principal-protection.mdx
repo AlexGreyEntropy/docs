@@ -4,29 +4,20 @@ description: "How Thaler protects the deposit, what protection covers, and how t
 keywords: ["principal protection", "reserve", "Squads policy", "deposit safety"]
 ---
 
-## What is protected
+## Commitment
 
-The deposit principal sent to a Thaler vault is protected from loss caused by:
+The deposit principal sent to a Thaler vault is protected from loss caused by ordinary market variance. Specifically, the protocol commits to return at least the deposit amount, in SOL, on a normal close.
+
+"Ordinary market variance" includes:
 
 - Adverse moves in the price of SOL during the holding period.
-- Funding rate flips on the perpetual hedge that would otherwise erode the position.
-- Borrow rate spikes that compress the lending spread to zero or briefly invert it.
+- Funding-rate flips on the perpetual hedge that would otherwise erode the position.
+- Borrow-rate spikes that compress the lending spread to zero or briefly invert it.
 - Short-term liquidation pressure inside the policy buffer.
 
-Protection means that, on a normal close, the user receives back at least the SOL amount they deposited, in SOL.
+## Mechanism
 
-## The two mechanisms
-
-```mermaid
-flowchart TB
-  D([Deposit]) --> V[(Vault)]
-  V --> P1{In-policy guardrails}
-  P1 -- ordinary variance --> V
-  V --> P2{Realised payout at close}
-  P2 -- shortfall --> R([Protocol reserve])
-  R -- top-up --> Payout([Principal returned])
-  P2 -- no shortfall --> Payout
-```
+Two mechanisms operate in series to deliver the commitment.
 
 <Steps>
   <Step title="The immutable policy">
@@ -37,32 +28,30 @@ flowchart TB
   </Step>
   <Step title="The protocol reserve">
     Thaler maintains a protocol reserve denominated in SOL. The reserve sits outside any
-    individual vault and is sized to absorb residual variance across the active vault set. When
-    a vault produces less than the deposit at close, the reserve tops the payout back to the
-    deposit amount.
+    individual vault and is sized to absorb residual variance across the active vault set.
+    When a vault produces less than the deposit at close, the reserve tops the payout back to
+    the deposit amount.
   </Step>
 </Steps>
 
-The two mechanisms operate in series. The policy prevents excursions large enough to consume the reserve in ordinary conditions. The reserve covers the tail where the policy alone is not enough.
+The policy is designed to prevent excursions large enough to consume the reserve under ordinary conditions. The reserve covers the tail where the policy alone is not sufficient.
 
 ## What protection does not cover
 
-Principal protection does not cover:
-
 | Scenario | Why it is excluded |
 |----------|--------------------|
-| Smart-contract failure of a third-party venue | The protocol cannot underwrite the security of Kamino, the perpetual exchanges, or the liquid staking providers. |
-| Loss of user keys | The protocol cannot recover a wallet the user no longer controls. |
-| User action outside the protocol | Anything signed by the user with a malicious external application is outside scope. |
-| Closure inside the penalty schedule | The penalty is part of the contract the user accepts. Closing after day 96 has no penalty and full protection applies. |
+| Smart-contract failure of a third-party venue | The protocol cannot underwrite the security of Kamino, the perpetual exchanges, or the liquid staking providers |
+| Loss of user keys | The protocol cannot recover a wallet the user no longer controls |
+| User action outside the protocol | Anything signed by the user with a malicious external application is outside scope |
+| Closure inside the penalty schedule | The penalty is part of the contract the user accepts; closing after day 96 has no penalty and full protection applies |
 
-These cases are described in detail under [Risk disclosure](/security/risk-disclosure).
+The excluded cases are described in detail under [Risk disclosure](/security/risk-disclosure).
 
-## How to verify the protection
+## Verifying the protection
 
 <Steps>
-  <Step title="Find your vault address">
-    The Squads smart account address is shown under the vault number on the My Vaults screen.
+  <Step title="Find the vault address">
+    The Squads smart account address appears under the vault number on the My Vaults screen.
   </Step>
   <Step title="Open a block explorer">
     Paste the address into [Solscan](https://solscan.io) or
@@ -70,7 +59,7 @@ These cases are described in detail under [Risk disclosure](/security/risk-discl
   </Step>
   <Step title="Read the policy extension">
     The policy lists the allowed programs, the leverage cap, the rebalance rules, and the
-    closure procedure. The on-chain policy and the strategy summary in the app should agree
+    closure procedure. The on-chain policy and the strategy summary in the app must agree
     exactly.
   </Step>
   <Step title="Locate the reserve">
@@ -80,21 +69,27 @@ These cases are described in detail under [Risk disclosure](/security/risk-discl
   </Step>
 </Steps>
 
-## Why protection is meaningful
+## Reserve sizing methodology
 
-Many DeFi products advertise high yields with no commitment on the principal. Thaler chose a different posture: the yield is variable but the deposit is anchored. This shifts the question for the user from "can I afford to lose my deposit?" to "do I like the expected yield band?".
+The reserve is sized against the worst observed annual outcome in the V12 walk-forward backtest across the supported venues. The protocol keeps a margin above the historical worst case so that an outlier year cannot exhaust the reserve.
 
-The trade-off the protocol makes for this guarantee is built into the reserve sizing and the service fee. Both are calibrated so the protocol can keep the commitment across the full historical record of the supported venues.
+The reserve grows with capacity. As more vaults open, additional capital is allocated to the reserve so the per-vault cover stays at least as conservative as the day-one ratio. The protocol publishes the reserve size and the vault count it backs in the analytics endpoints.
 
-## How the reserve is sized
+## Comparison with alternative postures
 
-The reserve is sized against the worst observed annual outcome in the V12 walk-forward backtest across the supported venues. The protocol keeps a buffer above the historical worst case so that an outlier year cannot exhaust the reserve. As capacity grows, the reserve grows in step. The protocol publishes the reserve size and the vault count it backs in the analytics endpoints.
+| Posture | What is fixed | What is variable | Where Thaler sits |
+|---------|----------------|------------------|--------------------|
+| Floating yield only | None | Yield and principal | Most yield protocols |
+| Capped fixed yield | Yield | None (deposit anchored) | Conservative structured products |
+| Floor and floating upside | Yield floor and principal | Realised yield above floor | Thaler |
+
+Thaler preserves the variable upside the strategy actually produces and anchors the principal plus a per-tier floor. The trade-off is built into the reserve sizing and the service fee.
 
 ## Next read
 
 <Columns cols={2}>
   <Card title="Yield floor" icon="shield-check" href="/security/yield-floor">
-    The minimum return commitment that sits on top of the principal protection.
+    The minimum return commitment that sits on top of principal protection.
   </Card>
   <Card title="Risk disclosure" icon="triangle-exclamation" href="/security/risk-disclosure">
     The residual risks no on-chain policy can fully eliminate.
