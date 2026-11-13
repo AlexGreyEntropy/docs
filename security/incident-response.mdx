@@ -1,46 +1,24 @@
 ---
 title: "Incident response"
-description: "How Thaler responds when infrastructure it depends on is at risk. Security comes before availability. Includes the October 2026 Railway incident."
-keywords: ["incident response", "security", "maintenance", "key rotation", "Railway"]
+description: "What Thaler does when something is wrong."
 ---
 
-## Principle
+## Our rule
 
-Security comes before availability. If there is a credible risk to the infrastructure behind the vaults, Thaler pauses vault actions first and verifies second. A short pause is always preferable to putting user positions at risk.
+Safety first. If something might be wrong, Thaler pauses vault actions, fixes it, and then turns them back on.
 
-## What a pause means
+During a pause, your positions stay in place and your funds do not move.
 
-<img src="/images/updates/maintenance.png" alt="Thaler is under maintenance" className="rounded-xl" />
+## October 2026: Railway incident
 
-| During maintenance | Status |
-|--------------------|--------|
-| Your positions | Stay in place |
-| New vaults, claims and closes | Paused |
-| Funds | Not moved |
-
-When the work is done, Thaler announces it is live again and vault actions resume.
-
-## October 2026: Railway security incident
-
-| Date | Action |
-|------|--------|
-| 22 October 2026 | The Railway security incident comes to light. Thaler is placed under maintenance and vault actions are paused |
-| 22 to 23 October 2026 | All keys rotated across Vercel, Privy and Neon. Every existing position stays in place throughout |
-| 23 October 2026 | Security measures complete. Thaler is back online and vault actions are restored |
+| Date | What happened |
+|------|---------------|
+| 22 October | Railway reported a security incident. Thaler paused vault actions |
+| 22 to 23 October | All keys were changed across Vercel, Privy and Neon |
+| 23 October | Thaler was back online |
 
 No user positions were affected.
 
-## Where announcements happen
+## Updates
 
-Incident updates are posted on [X (@ThalerFinance)](https://x.com/ThalerFinance) and in the [Discord](https://discord.gg/m3GdTFc4ru). To report a security issue, email [support@thaler.finance](mailto:support@thaler.finance).
-
-## Next read
-
-<Columns cols={2}>
-  <Card title="Risk disclosure" icon="triangle-exclamation" href="/security/risk-disclosure">
-    The residual risks.
-  </Card>
-  <Card title="Custody and policy" icon="key" href="/overview/custody-and-policy">
-    Who can move funds.
-  </Card>
-</Columns>
+Follow [@ThalerFinance](https://x.com/ThalerFinance) on X. Report security issues to [support@thaler.finance](mailto:support@thaler.finance).

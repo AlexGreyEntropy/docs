@@ -1,74 +1,22 @@
 ---
 title: "Closing a vault"
-description: "When you can close a Thaler vault, what the close does, and what you receive. A 4-week lock period, then no penalty."
-keywords: ["close vault", "lock period", "unwind", "settlement", "withdraw"]
+description: "When you can close, and what you get back."
 ---
 
-import { Term } from "/snippets/term.mdx";
+## When
 
-## Lock period
+Any time after the vault is **4 weeks** old. There is no penalty.
 
-<Term
-  id="lock-period"
-  word="lock period"
-  part="noun"
-  phonetic="lok · peer · ee · ud"
-  example="After the four-week lock period, I closed the vault and got my SOL back."
->
-  The four weeks after creation during which a vault cannot be closed. It gives the strategy time to cover its own setup costs.
-</Term>
+If you used [Yield Upfront](/vault/yield-upfront), you can close once it is paid back.
 
-A vault can be closed once it is at least **4 weeks** old. After that there is no closing penalty, whenever you close.
+## What you get back
 
-The lock period used to be one week. Some testers opened and closed vaults within two days, which costs the protocol more to set up and unwind than the vault can earn in that time. Four weeks gives every vault time to earn its keep.
+- Your deposit.
+- Any yield not yet paid out, minus the 11 % fee.
+- Half of your vault creation fee.
 
-If you took [Yield Upfront](/vault/yield-upfront), the vault stays locked until the claim is settled, even after 4 weeks.
+Everything is paid in SOL to your wallet, in one go.
 
-## What the close does
+## What happens behind the scenes
 
-<Steps>
-  <Step title="Close the hedge">
-    The short perpetual is closed and any profit or funding is swapped to SOL.
-  </Step>
-  <Step title="Unwind the lending loop">
-    Borrowed SOL is repaid and the LST collateral is released.
-  </Step>
-  <Step title="Convert to SOL">
-    The LST is converted back to SOL at the current exchange rate, capturing the staking yield.
-  </Step>
-  <Step title="Pay out to your wallet">
-    The SOL is sent to your wallet. Settlement is full or nothing: either every step completes
-    or none does.
-  </Step>
-</Steps>
-
-## What you receive
-
-| Component | Sign |
-|-----------|------|
-| Your deposit | + |
-| Generated yield not yet claimed | + |
-| 50 % of the vault creation fee, refunded | + |
-| 11 % service fee on generated yield | − |
-| Network fees for the close | − |
-
-Yield already paid out by auto-claim is in your wallet from earlier cycles. Yield you auto-compounded is part of the vault and comes back to you here.
-
-## Policy enforcement
-
-The close follows the closing rules fixed in the vault's policy: same unwind order, same venues, and your wallet as the only payout address. There is no path that sends the payout anywhere else.
-
-## Automatic settlement
-
-Thaler can also close vaults on your behalf in two cases: the end of a beta round, and an emergency exit triggered by the risk engine. When Round 1 ended on 2 August 2026, every vault settled automatically, and every tester received their deposit and realised yield minus the service fee, plus half of their creation fee.
-
-## Next read
-
-<Columns cols={2}>
-  <Card title="Fees" icon="receipt" href="/vault/fees">
-    The service fee and the creation fee refund.
-  </Card>
-  <Card title="Principal safety" icon="vault" href="/security/principal-protection">
-    What protects the deposit you get back.
-  </Card>
-</Columns>
+The vault closes the hedge, unwinds the lending loop, turns the staking token back into SOL, and sends it to you. Either every step completes or none does.

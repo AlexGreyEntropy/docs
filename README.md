@@ -22,13 +22,13 @@ Mintlify watches the local files and rebuilds on save. The dev server runs on `l
 | `security/` | Principal safety, structural floor, incident response, risk disclosure |
 | `glossary.mdx` | Every Thaler term, in dictionary format |
 | `faq.mdx` | Frequently asked questions |
-| `snippets/term.mdx` | The `<Term>` dictionary-entry component |
 | `images/` | Strategy diagrams and update graphics |
 | `docs.json` | Site configuration, navigation and theme |
 | `logo/` | Light and dark Thaler wordmark |
 
 ## Editing rules
 
+- Keep it simple. Plain markdown only: headings, short paragraphs, lists, tables, images. No blockquotes, no raw HTML or JSX components, no diagrams.
 - Write in second-person voice ("you", "your vault").
 - Active voice, direct language.
 - Sentence case for headings.
@@ -36,7 +36,7 @@ Mintlify watches the local files and rebuilds on save. The dev server runs on `l
 - Do not publish strategy parameters, position sizes or operational thresholds.
 - All code blocks need a language tag.
 - All internal links use root-relative paths without file extensions: `/strategies/index`.
-- Define terms with the `<Term>` component in dictionary format: headword, part of speech, phonetic, plain definition, and an `e.g.:` example that uses the word. Add every new term to `glossary.mdx` too.
+- Define terms in dictionary format, in plain markdown: `### term`, then `*(noun)* · *pho · net · ic*`, a one-line definition, and `*e.g.: ... **term** ...*`. Add every term to `glossary.mdx`.
 - Date every published number ("as of 13 November 2026"). Numbers are snapshots, never forecasts.
 - Do not describe the structural floor or principal safety as guarantees until the on-chain reserve is live.
 

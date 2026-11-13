@@ -1,47 +1,26 @@
 ---
 title: "Risk disclosure"
-description: "The risks that remain in a Thaler vault. What the protocol does about each one, and what stays with you."
-keywords: ["risk", "disclosure", "smart contract", "depeg", "funding", "counterparty", "custody"]
+description: "The risks that remain."
 ---
 
-## Scope
+Thaler reduces risk, but cannot remove all of it. This is not financial advice.
 
-A Thaler vault is built to remove as much risk as it can: the hedge removes price exposure, isolation removes shared risk, and the risk engine acts before positions reach their limits. Some risks remain. They are listed here so you can decide with them in view.
+| Risk | What could happen |
+|------|-------------------|
+| Other protocols | Kamino, Jupiter, a perpetual market or a staking provider is hacked or fails |
+| Staking tokens | A staking token loses value against SOL |
+| Borrow costs | Borrowing costs more than staking earns for a long time |
+| Funding | Funding stays negative for a long time |
+| Fast rallies | A sharp SOL rally puts pressure on the hedge |
+| Custody | During the beta, vaults use Privy wallets, not on-chain policies |
+| Audit | The audit is not finished yet |
+| Solana | Network outages delay actions |
+| Your access | You lose access to your wallet |
 
-None of this is financial advice. The private beta is not available to residents of restricted jurisdictions, and access requires approval.
+## Not guaranteed
 
-## Risk inventory
+- Your deposit.
+- Any minimum return.
+- Past results. Every number Thaler shares is a snapshot.
 
-| Risk | What could happen | Mitigation |
-|------|-------------------|------------|
-| Third-party protocol risk | Kamino, Jupiter Lend, Pacifica, Phoenix, Bulk or a staking provider is exploited or fails | Only established venues, Pulse Router can route away from a degraded venue, per-vault isolation |
-| LST depeg | An LST loses value against SOL and the lending loop has to unwind | Nine supported LSTs, routing away from a token whose discount widens |
-| Borrow rate spikes | SOL borrow costs exceed staking yield and the loop loses money | Safety triggers delever automatically, as on 8 July 2026 |
-| Liquidity shocks | Liquidity leaves a lending market suddenly, making rebalancing harder | Continuous monitoring, deleveraging, headroom kept on purpose |
-| Funding risk | Funding turns negative for a sustained period | Downside capture and the staking and loop legs keep earning |
-| Short squeeze | A fast SOL rally pressures the hedge | SOL as collateral, extra margin from loop headroom, liquidation buffers |
-| Oracle risk | Stale or manipulated prices on a venue trigger a bad liquidation | Buffers well below liquidation thresholds |
-| Infrastructure risk | A hosting, database or key provider is compromised | Pause first, rotate keys, verify, then resume. See [Incident response](/security/incident-response) |
-| Custody risk (beta) | The beta relies on Privy agentic wallets and their policy enforcement rather than an on-chain policy | Scoped authorization keys, migration to Squads smart accounts after the audit |
-| Audit status | The stable risk engine is not yet audited | Audit in progress; on-chain programs built on Quasar |
-| Network risk | Solana congestion or outages delay rebalances or settlement | Premium RPC through Triton One, buffers sized for delays |
-| Regulatory risk | Rules change in your jurisdiction | Access may be restricted where operation becomes non-compliant |
-| Account risk | You lose access to your wallet or account | Thaler cannot recover access it never held |
-
-## What Thaler does not guarantee
-
-- Your principal. Principal safety comes from the hedge, isolation and safety triggers, not from a reserve. The reserve is still being designed.
-- A minimum return. The structural floor near 7 to 8 % a year is a design target.
-- Losses caused by third-party protocols.
-- Past results. Every number Thaler publishes is a point-in-time snapshot.
-
-## Next read
-
-<Columns cols={2}>
-  <Card title="Principal safety" icon="vault" href="/security/principal-protection">
-    What protects the deposit.
-  </Card>
-  <Card title="FAQ" icon="circle-question" href="/faq">
-    Short answers to common questions.
-  </Card>
-</Columns>
+The private beta is not open to residents of restricted countries.

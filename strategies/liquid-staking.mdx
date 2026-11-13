@@ -1,63 +1,24 @@
 ---
 title: "Liquid staking"
-description: "The staking leg of a Thaler vault. Your SOL is staked into a liquid staking token that keeps earning while the rest of the vault puts it to work."
-keywords: ["liquid staking", "LST", "jitoSOL", "mSOL", "jupSOL", "INF", "staking yield"]
+description: "The first part of every vault."
 ---
 
-import { Term } from "/snippets/term.mdx";
+## What it does
 
-## Role in the vault
-
-<Term
-  word="liquid staking token"
-  part="noun"
-  phonetic="lik · wid · stay · king · toh · ken"
-  example="The vault holds a liquid staking token that keeps earning staking rewards."
->
-  A token that stands for staked SOL plus its rewards, and that can still be moved and used. Also called an LST. jitoSOL and mSOL are two examples.
-</Term>
-
-Every Thaler vault starts with a liquid staking position. Your SOL is staked into an LST, which earns Solana staking rewards through its exchange rate. Because the token can still be moved, the vault can supply it to a lending market while the staking reward keeps accruing underneath.
-
-Without liquid staking, the lending loop and the hedge would not be possible.
+Your SOL is staked into a **liquid staking token** (LST). The token earns staking rewards and can still be used in the rest of the strategy.
 
 ## Supported tokens
 
-Since v1.1, Thaler supports nine liquid staking tokens.
+![Supported staking tokens](/images/strategy/liquid-staking.jpeg)
 
-<img src="/images/strategy/liquid-staking.jpeg" alt="The nine supported liquid staking tokens" className="rounded-xl" />
+jitoSOL, mSOL, jupSOL, INF, bSOL, stkeSOL, hSOL, pSOL and lanternSOL.
 
-| Token | Issuer |
-|-------|--------|
-| jitoSOL | Jito |
-| mSOL | Marinade |
-| jupSOL | Jupiter |
-| INF | Sanctum Infinity |
-| bSOL (blazeSOL) | BlazeStake |
-| stkeSOL | SOL Strategies |
-| hSOL | Helius |
-| pSOL | Phantom |
-| lanternSOL | Lantern |
+Pulse Router picks the token with the best yield for your vault.
 
-## How a token is chosen
+## How you earn
 
-You do not pick the token. [Pulse Router](/overview/architecture#pulse-router) compares the supported LSTs and routes the vault to the one with the best available yield, within the policy. Each token has different characteristics and yield at any given time, and having nine to choose from makes the strategy more adaptable.
+The token slowly becomes worth more SOL. When you close your vault, it is turned back into SOL and the gain is yours.
 
-## How rewards are realised
+## Risk
 
-Staking rewards are paid into the LST's exchange rate. Over time the token is worth more SOL than when the vault received it. When the vault closes, the LST is converted back to SOL at the current rate, and that growth is part of your return.
-
-## Provider risk
-
-The staking leg inherits the record of the chosen provider. Thaler does not run its own validators. If a provider's contracts fail or its token depegs badly, the vault is exposed to that loss. A severe LST depeg is also one of the few events that could force the lending loop to unwind. See [Risk disclosure](/security/risk-disclosure).
-
-## Next read
-
-<Columns cols={2}>
-  <Card title="Lending markets" icon="banknote" href="/strategies/lending-markets">
-    How the LST is looped to earn the spread.
-  </Card>
-  <Card title="Perpetual markets" icon="scale" href="/strategies/perpetual-markets">
-    The short that keeps the vault neutral.
-  </Card>
-</Columns>
+If a staking provider fails or its token loses value against SOL, your vault is affected. See [Risk disclosure](/security/risk-disclosure).

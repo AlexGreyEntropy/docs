@@ -1,61 +1,21 @@
 ---
 title: "Creating a vault"
-description: "How to open a Thaler vault: get access, pick a risk profile, choose a deposit inside its band, and decide what happens to your yield."
-keywords: ["create vault", "deposit", "risk profile", "deposit band", "private beta"]
+description: "Open a vault in a few steps."
 ---
 
-import { Term } from "/snippets/term.mdx";
+## Steps
 
-## Before you start
+1. Go to [thaler.finance](https://thaler.finance) and sign in.
+2. Pick a risk profile.
+3. Enter how much SOL to deposit.
+4. Sign the transaction.
 
-| Requirement | Detail |
-|-------------|--------|
-| Access | Thaler is in private beta. Request access at [thaler.finance](https://thaler.finance) |
-| SOL | At least the minimum of your chosen risk profile, plus a little for network fees |
-| Wallet | A Solana wallet |
+Your vault is ready in under a minute. The worker then sets up staking, lending and the hedge for you.
 
-## The flow
+## How much to deposit
 
-<Steps>
-  <Step title="Open the app">
-    Go to [thaler.finance](https://thaler.finance) and sign in. Nothing leaves your wallet until
-    you approve a transaction.
-  </Step>
-  <Step title="Pick a risk profile">
-    Choose one of the six Thaler One profiles, from Safe to YOLO. Each shows its target return
-    and its deposit band. The profile is fixed for the life of the vault.
-  </Step>
-  <Step title="Choose your deposit">
-    Enter an amount in SOL inside the profile's deposit band.
-  </Step>
-  <Step title="Decide what happens to your yield">
-    Auto-compound is on by default and reinvests yield every 4 weeks. Switch it off to have
-    yield auto-claimed to your wallet instead. You can also take
-    [Yield Upfront](/vault/yield-upfront).
-  </Step>
-  <Step title="Accept the terms and sign">
-    Read the terms and policy agreement and sign the creation transaction. It pays the vault
-    creation fee and funds the vault.
-  </Step>
-  <Step title="Let it build">
-    Vault creation takes under a minute. Your dedicated worker then builds the staking, lending
-    and hedge legs inside the vault's policy. The vault appears on your dashboard.
-  </Step>
-</Steps>
-
-## Deposit bands
-
-<Term
-  word="deposit band"
-  part="noun"
-  phonetic="dih · poz · it · band"
-  example="The deposit band for Optimistic starts at 11 SOL."
->
-  The minimum and maximum SOL a vault of a given risk profile accepts.
-</Term>
-
-| Risk profile | Minimum | Maximum |
-|--------------|---------|---------|
+| Profile | Minimum | Maximum |
+|---------|---------|---------|
 | Safe | 6 SOL | 1,111 SOL |
 | Conservative | 6 SOL | 1,111 SOL |
 | Balanced | 8 SOL | 1,111 SOL |
@@ -63,29 +23,10 @@ import { Term } from "/snippets/term.mdx";
 | Aggressive | 9 SOL | 1,111 SOL |
 | YOLO | 8 SOL | 1,111 SOL |
 
-The minimums cover the operating minimums of the venues the vault uses. The first beta round used a fixed 2 SOL deposit to keep early risk small; that size no longer applies.
+## More than one vault
 
-## Multiple vaults, one wallet
+You can open as many vaults as you like, each with its own risk profile.
 
-You can run several vaults side by side, for example a Safe vault and an Aggressive vault. Each is isolated, with its own risk profile, worker and policy.
+## What Thaler handles for you
 
-## What you do not configure
-
-| Decision | Made by |
-|----------|---------|
-| Staking token | Pulse Router, within the policy |
-| Lending market | Pulse Router, within the policy |
-| Perpetual venue | Pulse Router, within the policy |
-| Rebalancing and safety actions | The risk engine |
-| Stop-loss or take-profit | Not applicable, the strategy is rule-based |
-
-## Next read
-
-<Columns cols={2}>
-  <Card title="Yield and claims" icon="coins" href="/vault/claim">
-    Auto-compound and auto-claim.
-  </Card>
-  <Card title="Yield Upfront" icon="forward" href="/vault/yield-upfront">
-    Take months of yield on day one.
-  </Card>
-</Columns>
+Choosing markets, rebalancing, compounding and paying out yield. You do not need to manage anything.

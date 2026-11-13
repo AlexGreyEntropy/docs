@@ -1,68 +1,33 @@
 ---
 title: "Lending markets"
-description: "The lending leg of a Thaler vault. How the LST/SOL loop earns the spread, why its liquidation risk is low, and how the engine reacts when rates move."
-keywords: ["lending loop", "Kamino", "Kamino Multiply", "Jupiter Lend", "Jupiter Multiply", "LTV", "spread"]
+description: "The lending loop that boosts staking yield."
 ---
 
-import { Term } from "/snippets/term.mdx";
+## What it does
 
-## Role in the vault
+Staking alone pays about 5 to 6 % a year. The lending loop raises that.
 
-<Term
-  word="lending loop"
-  part="noun"
-  phonetic="len · ding · loop"
-  example="The lending loop on Kamino Multiply earned the spread while SOL went sideways."
->
-  Supplying an LST as collateral, borrowing SOL against it, and staking that SOL again, to earn the gap between staking yield and borrow cost.
-</Term>
+1. The vault lends its staking token.
+2. It borrows SOL against it.
+3. It stakes that SOL again.
 
-Solana staking pays roughly 5 to 6 % a year. The lending loop is how Thaler turns that into 8, 9 or 10 %. The vault supplies its LST, borrows SOL, stakes it into more LST, and repeats up to the leverage its risk profile allows. It earns staking yield on the larger position and pays the SOL borrow rate on the debt.
-
-| Component | Direction |
-|-----------|-----------|
-| Staking yield on the supplied LST | Income |
-| Lending rewards and farm tokens, swapped to SOL | Income |
-| SOL borrow rate | Cost |
-
-The loop is the only part of the strategy that compounds. Its earnings grow the collateral side, which lowers the loan-to-value over time and gives the vault more headroom.
+The vault earns staking yield on a bigger position and pays a smaller borrow cost. Earnings are added back in, so the loop compounds.
 
 ## Supported markets
 
-<img src="/images/strategy/lending.jpeg" alt="Kamino and Jupiter Lend" className="rounded-xl" />
+![Kamino and Jupiter Lend](/images/strategy/lending.jpeg)
 
 | Market | Status |
 |--------|--------|
-| Kamino (Multiply) | Live |
-| Jupiter Lend (Multiply) | Live since v1.1 |
+| Kamino | Live |
+| Jupiter Lend | Live |
 
-[Pulse Router](/overview/architecture#pulse-router) compares the two on borrow rates and spread and routes the vault to the better one at the time.
+Pulse Router picks the better one for your vault.
 
-## Why liquidation risk is low
+## Why it is low risk
 
-The loop pairs an LST with SOL. Both sides move with the price of SOL, so a price move does not push the loan toward liquidation the way a SOL/USDC loan would. For the loop to unwind, an LST would have to depeg or a market would have to fail.
+Both sides of the loop are SOL, so SOL's price moving does not push the loan toward liquidation.
 
-The loop also keeps headroom on purpose. Part of that headroom funds the short's margin, and the rest is a buffer.
+## When rates move
 
-## How the engine reacts
-
-| Event | Response |
-|-------|----------|
-| SOL borrow rate spikes | Safety triggers delever the loop to keep the spread in a safe range |
-| Loop APY approaches a critical level | Delever until the rate is positive again |
-| Short needs more margin in a rally | Borrow extra SOL from loop headroom and post it as margin |
-| Short profit is realised | Repay the extra SOL to the loop |
-| Liquidity leaves the market suddenly | Rebalance against the assumptions about available liquidity |
-
-On 8 July 2026, Kamino's SOL borrow rate hit a record high. The triggers cut the drag across the fleet by about 87 % and the vaults recovered within days. On 26 August, about $10 million of SOL left the Kamino market Thaler uses in under an hour, and the engine held the loops. See [Track record](/overview/track-record#stress-events).
-
-## Next read
-
-<Columns cols={2}>
-  <Card title="Perpetual markets" icon="scale" href="/strategies/perpetual-markets">
-    The hedge the loop helps fund.
-  </Card>
-  <Card title="Yield Upfront" icon="forward" href="/vault/yield-upfront">
-    Borrowing your expected yield from the loop's headroom.
-  </Card>
-</Columns>
+If borrow costs spike, the risk engine reduces borrowing automatically. In July 2026, during a record spike on Kamino, this cut the extra cost by about 87 %.

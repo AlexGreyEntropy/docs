@@ -1,69 +1,25 @@
 ---
 title: "Principal safety"
-description: "How a Thaler vault protects your deposit: the hedge, isolation, policy limits and automatic safety triggers. Plus what is not covered, and where the planned reserve stands."
-keywords: ["principal", "deposit safety", "hedge", "isolation", "safety triggers", "reserve"]
+description: "How your deposit is protected."
 ---
 
-import { Term } from "/snippets/term.mdx";
+## What protects your deposit
 
-## What protects the deposit
+| Item | Detail |
+|------|--------|
+| Hedge | SOL's price does not change your deposit's value |
+| Your own vault | Other vaults cannot affect yours |
+| Policy | The vault can only use approved markets |
+| Risk engine | Acts automatically before a position gets unsafe |
 
-Four layers work together to keep your principal intact through ordinary market moves.
+## Not a guarantee yet
 
-| Layer | What it does |
-|-------|--------------|
-| The hedge | The short perpetual is sized against your deposit, so SOL's price does not on its own change its value |
-| Isolation | Your vault holds only your funds. A problem in another vault cannot reach yours |
-| The policy | The vault can only use approved assets and venues, within its risk profile's limits |
-| Safety triggers | The risk engine acts automatically before a leg nears liquidation |
+Thaler is building a public reserve on Solana to back deposits. It is not live yet. Until it is, your deposit is not guaranteed.
 
-<Term
-  word="safety trigger"
-  part="noun"
-  phonetic="sayf · tee · trig · er"
-  example="A safety trigger delevered the loop when borrow rates spiked."
->
-  An automatic rule that acts when a strategy leg nears a risk limit, such as reducing leverage or adding margin, with no human in the loop.
-</Term>
+## Not covered
 
-## How the layers have held
-
-| Event | Outcome |
-|-------|---------|
-| SOL rallies from $65 to $84 and from $74 to $110 | Shorts held, no liquidations |
-| Record SOL borrow rate on Kamino, July 2026 | Drag cut by about 87 %, vaults recovered within days |
-| $10M liquidity leaving Kamino in under an hour, August 2026 | Loops held, no security issues |
-| Railway security incident, October 2026 | Vault actions paused, keys rotated, every position left in place |
-
-Details are on [Track record](/overview/track-record#stress-events) and [Incident response](/security/incident-response).
-
-## The reserve
-
-<Warning>
-  A public on-chain reserve to back the deposit and the structural floor is being designed.
-  It is not live. Until it is, Thaler does not guarantee your principal or a minimum return.
-</Warning>
-
-The planned reserve sits outside every individual vault. It is meant to cover the gap when a vault's result on a normal close falls below its deposit or the structural floor. Its sizing is being derived from more than 200,000 Monte Carlo iterations and the live record of the vaults. It will be added to these docs, with its address, once it ships.
-
-## What is not covered
-
-| Scenario | Why |
-|----------|-----|
-| Failure or exploit of a third-party protocol | Thaler cannot underwrite Kamino, Jupiter, the perpetual venues or the staking providers |
-| Severe LST depeg | The lending loop depends on the LST holding its value against SOL |
-| Loss of your own keys or account | Thaler cannot recover access it never had |
-| Anything you sign outside Thaler | Outside the vault's policy |
+- A hack or failure at Kamino, Jupiter, a perpetual market or a staking provider.
+- A staking token losing its value against SOL.
+- Losing access to your own wallet.
 
 See [Risk disclosure](/security/risk-disclosure).
-
-## Next read
-
-<Columns cols={2}>
-  <Card title="Structural floor" icon="shield-check" href="/security/yield-floor">
-    What the strategy is designed to earn in any market.
-  </Card>
-  <Card title="Risk disclosure" icon="triangle-exclamation" href="/security/risk-disclosure">
-    What can still go wrong.
-  </Card>
-</Columns>

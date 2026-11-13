@@ -1,89 +1,33 @@
 ---
 title: "Yield and claims"
-description: "How yield builds up inside a vault and what happens to it every 4 weeks: auto-compound by default, or auto-claim to your wallet."
-keywords: ["auto-compound", "auto-claim", "yield", "claim", "4 weeks"]
+description: "What happens to your yield every 4 weeks."
 ---
 
-import { Term } from "/snippets/term.mdx";
+## Every 4 weeks
 
-## How yield builds up
+Your vault collects its yield every 4 weeks, takes the 11 % fee, and then does one of two things.
 
-Yield accrues inside the vault continuously, from four places:
+| Setting | What happens |
+|---------|--------------|
+| Auto-compound (default) | Yield goes back into your vault and starts earning too |
+| Auto-claim | Yield is paid to your wallet |
 
-| Source | How it shows up |
-|--------|-----------------|
-| Staking | The LST is worth more SOL over time |
-| Lending loop | The collateral side of the loop grows as it compounds |
-| Funding | Funding payments land in the hedge account |
-| Downside capture | Short profits are realised in USDC and swapped to SOL |
+You do not need to do anything either way.
 
-Everything is counted in SOL. Funding and short profits are paid in USDC on the perpetual venue and swapped to SOL once they clear the venue's minimum.
+## Auto-compound
 
-## The 4-week cycle
+![auto-compound](/images/updates/auto-compound.png)
 
-Every 4 weeks, the vault settles the yield it has generated, takes the 11 % service fee from that yield, and then does one of two things.
+On by default. Switch it off to get paid out instead.
 
-<img src="/images/updates/auto-compound.png" alt="auto-compound, defined" className="rounded-xl" />
+## Auto-claim
 
-<Term
-  word="auto-compound"
-  part="noun"
-  phonetic="aw · toh · kom · pownd"
-  example="I left auto-compound on and let my earnings do the work."
->
-  A vault setting that adds your earnings back in every 4 weeks, so they start earning too. On by default. Switch it off to get paid out instead.
-</Term>
+![auto-claim](/images/updates/auto-claim.png)
 
-<img src="/images/updates/auto-claim.png" alt="auto-claim, defined" className="rounded-xl" />
+Your yield lands in your wallet on schedule.
 
-<Term
-  word="auto-claim"
-  part="noun"
-  phonetic="aw · toh · klaym"
-  example="With auto-claim enabled, yield is paid out without manual collection."
->
-  A vault feature that automatically collects earned yield at regular intervals and pays it out to the holder, with no action required.
-</Term>
+## Good to know
 
-| | Auto-compound | Auto-claim |
-|-|---------------|------------|
-| Default | On | Off |
-| Every 4 weeks | Net yield goes back into the vault | Net yield is paid to your wallet |
-| Effect | Your yield starts earning yield | Your deposit stays the same size |
-| Action needed | None | None |
-
-Switch auto-compound off to get paid out instead. If you take [Yield Upfront](/vault/yield-upfront), the vault runs on auto-repay until the claim is settled, and neither setting applies until then.
-
-## Settlement
-
-<Term
-  word="settlement"
-  part="noun"
-  phonetic="set · ul · ment"
-  example="The settlement landed in my wallet in one transaction."
->
-  The moment funds move from a vault to your wallet. Settlement is full or nothing: either every step completes or none does.
-</Term>
-
-What you see is what you receive. A claim never leaves the vault half-settled.
-
-## What a claim does not do
-
-- It does not close the vault. The strategy keeps running.
-- It does not touch your deposit. Only generated yield is claimed.
-- It does not reset the [lock period](/vault/close#lock-period).
-
-## Why every 4 weeks
-
-Each claim is a set of on-chain transactions across several venues. A 4-week cycle keeps network and swap costs small compared with the yield being moved, and lets the hedge's USDC earnings build past the minimum needed to swap them to SOL.
-
-## Next read
-
-<Columns cols={2}>
-  <Card title="Yield Upfront" icon="forward" href="/vault/yield-upfront">
-    Take months of yield on day one.
-  </Card>
-  <Card title="Fees" icon="receipt" href="/vault/fees">
-    The 11 % service fee on generated yield.
-  </Card>
-</Columns>
+- Claiming never touches your deposit.
+- Claiming does not close your vault.
+- If you use [Yield Upfront](/vault/yield-upfront), your yield pays that back first.

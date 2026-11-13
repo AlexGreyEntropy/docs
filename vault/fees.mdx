@@ -1,72 +1,29 @@
 ---
 title: "Fees"
-description: "What Thaler charges: an 11 % service fee on generated yield, and a vault creation fee that is half refunded at close. No deposit, management or closing penalty fees."
-keywords: ["fees", "service fee", "vault creation fee", "refund"]
+description: "What Thaler charges."
 ---
 
-import { Term } from "/snippets/term.mdx";
+## Fees
 
-## Fee schedule
+| Fee | Amount |
+|-----|--------|
+| Service fee | 11 % of your yield |
+| Vault creation fee | A small amount of SOL, half refunded when you close |
 
-| Fee | Rate | When | Paid from |
-|-----|------|------|-----------|
-| Service fee | 11 % of generated yield | At each 4-week cycle and at close | Generated yield |
-| Vault creation fee | Small fixed SOL amount, shown before you sign | At creation | Your wallet |
-| Creation fee refund | 50 % of the creation fee comes back | At close | Paid to you |
+That is all. No deposit fee, no management fee, and no closing penalty.
 
-<Term
-  word="service fee"
-  part="noun"
-  phonetic="sur · vis · fee"
-  example="The service fee only came out of my yield, never my deposit."
->
-  The 11 % share of generated yield that Thaler keeps to run the engine. It is never taken from your deposit.
-</Term>
+## Example
 
-If a vault generates no yield, the service fee is zero.
+You deposit 10 SOL and your vault earns 1.3 SOL in a year.
 
-## Fees Thaler does not charge
-
-| Item | Status |
+| Item | Detail |
 |------|--------|
-| Deposit fee | None |
-| Management fee | None, the service fee is performance-based |
-| Closing penalty | None, once the 4-week lock period has passed |
-
-## Network and venue costs
-
-The worker pays Solana network fees, swap fees and venue fees on your vault's behalf from the vault's balance. Swaps route through Titan with fees under 10 basis points. These are costs of using Solana and its venues, not Thaler fees.
-
-## Net versus gross
-
-Target returns and the current APR shown by Thaler are net of the service fee. You do not need to subtract anything.
-
-```text
-net_yield = gross_yield × (1 − 0.11)
-```
-
-## Worked example
-
-A 10 SOL Balanced vault that generates 1.30 SOL of gross yield over a year, held with auto-claim on:
-
-| Item | Value |
-|------|-------|
-| Deposit | 10.000 SOL |
-| Gross yield | 1.300 SOL |
+| Yield | 1.300 SOL |
 | Service fee (11 %) | 0.143 SOL |
-| Net yield, paid every 4 weeks | 1.157 SOL |
-| Deposit returned at close | 10.000 SOL |
-| Plus 50 % of the creation fee | Refunded at close |
+| You keep | 1.157 SOL |
 
-The figures are illustrative. Actual yield depends on the market and the risk profile.
+Returns shown in the app are already after the fee.
 
-## Next read
+## Network costs
 
-<Columns cols={2}>
-  <Card title="Yield and claims" icon="coins" href="/vault/claim">
-    When the service fee is taken.
-  </Card>
-  <Card title="Structural floor" icon="shield-check" href="/security/yield-floor">
-    What the strategy is designed to earn.
-  </Card>
-</Columns>
+Solana transaction and swap costs are paid from the vault. These are not Thaler fees.

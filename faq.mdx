@@ -1,141 +1,56 @@
 ---
-title: "Frequently asked questions"
-description: "Short answers to the most common questions about Thaler vaults: custody, yield, Yield Upfront, closing, fees and risk."
-keywords: ["FAQ", "questions", "Thaler", "Solana", "Yield Upfront", "auto-compound"]
+title: "FAQ"
+description: "Quick answers."
 ---
 
-## The basics
+### What is Thaler?
 
-<AccordionGroup>
-  <Accordion title="What is Thaler?" defaultOpen>
-    A non-custodial yield protocol on Solana. You deposit SOL into your own vault, which runs a
-    delta-neutral strategy across liquid staking, a lending loop and a short perpetual hedge.
-    It earns from market movement, not price direction. See
-    [What is Thaler](/overview/what-is-thaler).
-  </Accordion>
-  <Accordion title="Is there a Thaler token?">
-    No. There is no token, no presale and no airdrop. If you see one, it is not us.
-  </Accordion>
-  <Accordion title="Can I use Thaler now?">
-    Thaler is in private beta on Solana mainnet. Request access at
-    [thaler.finance](https://thaler.finance).
-  </Accordion>
-  <Accordion title="What can I deposit?">
-    SOL. Yield is measured and paid in SOL too.
-  </Accordion>
-</AccordionGroup>
+A yield protocol on Solana. You deposit SOL into your own vault, and it earns whether SOL goes up or down.
 
-## Custody
+### Is there a Thaler token?
 
-<AccordionGroup>
-  <Accordion title="Is Thaler custodial?">
-    No. Each vault is its own isolated wallet. During the private beta it is a Privy agentic
-    wallet that the engine operates through a scoped authorization key, never your private key.
-    After the audit, vaults move to Squads smart accounts with immutable on-chain policies. See
-    [Custody and policy](/overview/custody-and-policy).
-  </Accordion>
-  <Accordion title="Are deposits pooled?">
-    No. Every vault holds only its owner's funds. If one vault were ever exploited, every other
-    vault would be unaffected.
-  </Accordion>
-  <Accordion title="Do I need to manage anything?">
-    No. Your dedicated worker rebalances, compounds, claims and hedges inside the vault's
-    policy. You sign to create a vault, to take Yield Upfront, and to close.
-  </Accordion>
-</AccordionGroup>
+No.
 
-## Yield
+### What can I deposit?
 
-<AccordionGroup>
-  <Accordion title="How much can I earn?">
-    The strategy targets 8.2 % to 20 % a year, net of fees, depending on the risk profile. As
-    of 13 November 2026, the current APR across live vaults was 15.45 %. These are not promises.
-  </Accordion>
-  <Accordion title="What happens when SOL falls?">
-    The short hedge books the fall as profit, which is swapped to SOL. Falling markets are when
-    the vault tends to earn most.
-  </Accordion>
-  <Accordion title="What happens when SOL rises?">
-    The lending loop keeps compounding and funding usually pays the short. Your yield, already
-    in SOL, is worth more in dollars.
-  </Accordion>
-  <Accordion title="Is there a guaranteed minimum?">
-    Not yet. The strategy is designed around a structural floor near 7 to 8 % a year, but a
-    guarantee needs the on-chain reserve, which is still being designed. See
-    [Structural floor](/security/yield-floor).
-  </Accordion>
-  <Accordion title="How do I get my yield?">
-    Every 4 weeks. Auto-compound is on by default and adds yield back into the vault. Switch it
-    off and yield is auto-claimed to your wallet instead. See [Yield and claims](/vault/claim).
-  </Accordion>
-  <Accordion title="What is Yield Upfront?">
-    Claim up to 6 months of expected net yield on the day you open a vault. The vault locks,
-    runs on auto-repay, and its own yield settles the claim, typically in about 4 to 5 months.
-    See [Yield Upfront](/vault/yield-upfront).
-  </Accordion>
-</AccordionGroup>
+SOL.
 
-## Risk profiles and deposits
+### How much can I earn?
 
-<AccordionGroup>
-  <Accordion title="What are the risk profiles?">
-    Six: Safe, Conservative, Balanced, Optimistic, Aggressive and YOLO. The profile sets how
-    hard the strategy leans on each leg and is fixed for the life of the vault.
-  </Accordion>
-  <Accordion title="How much do I need to deposit?">
-    It depends on the profile, from 6 SOL (Safe, Conservative) up to 11 SOL (Optimistic), with a
-    maximum of 1,111 SOL. See [Creating a vault](/vault/create#deposit-bands).
-  </Accordion>
-  <Accordion title="Can I run more than one vault?">
-    Yes. You can run several vaults side by side, each with its own profile.
-  </Accordion>
-</AccordionGroup>
+The target is 8.2 % to 20 % a year, depending on your risk profile. This is not a promise.
 
-## Closing
+### Is my money pooled with others?
 
-<AccordionGroup>
-  <Accordion title="When can I close my vault?">
-    After 4 weeks. There is no closing penalty after that. If you took Yield Upfront, the vault
-    stays locked until the claim is settled.
-  </Accordion>
-  <Accordion title="What do I get back?">
-    Your deposit plus unclaimed yield, minus the 11 % service fee on that yield, plus half of
-    your vault creation fee, all in SOL. See [Closing a vault](/vault/close).
-  </Accordion>
-</AccordionGroup>
+No. Every vault is separate.
 
-## Fees
+### Can Thaler take my funds?
 
-<AccordionGroup>
-  <Accordion title="What does Thaler charge?">
-    An 11 % service fee on generated yield, and a small vault creation fee, half of which is
-    refunded at close. No deposit fee, management fee or closing penalty. See [Fees](/vault/fees).
-  </Accordion>
-  <Accordion title="Are the returns shown gross or net?">
-    Net of the service fee.
-  </Accordion>
-</AccordionGroup>
+No. Payouts can only go to your wallet.
 
-## Strategy details
+### When do I get my yield?
 
-<AccordionGroup>
-  <Accordion title="Which protocols does a vault use?">
-    Nine liquid staking tokens, Kamino and Jupiter Lend for lending, and Pacifica, Phoenix and
-    Bulk (in testing) for the hedge. Pulse Router picks the best one for each leg.
-  </Accordion>
-  <Accordion title="Why are exact parameters private?">
-    Leverage values, rebalance thresholds and venue weights would let others front-run
-    rebalances. The legs, venues and rules are public; the calibration is not.
-  </Accordion>
-</AccordionGroup>
+Every 4 weeks. By default it is added back to your vault. Switch off auto-compound to get it paid out instead.
 
-## Still need help?
+### What is Yield Upfront?
 
-<Columns cols={2}>
-  <Card title="Glossary" icon="book" href="/glossary">
-    Every Thaler term, defined.
-  </Card>
-  <Card title="Email support" icon="envelope" href="mailto:support@thaler.finance">
-    Reach the team directly.
-  </Card>
-</Columns>
+Get up to 6 months of expected yield on day one. Your vault pays it back over time.
+
+### How much do I need?
+
+6 to 11 SOL minimum, depending on the risk profile.
+
+### When can I close my vault?
+
+After 4 weeks, with no penalty.
+
+### What are the fees?
+
+11 % of your yield, plus a small creation fee that is half refunded when you close.
+
+### Is my deposit guaranteed?
+
+Not yet. See [Principal safety](/security/principal-protection).
+
+### How do I get access?
+
+Request it at [thaler.finance](https://thaler.finance).

@@ -1,86 +1,33 @@
 ---
 title: "Perpetual markets"
-description: "The hedge leg of a Thaler vault. How a short SOL perpetual sized against your deposit cancels price exposure, earns funding, and turns falling markets into profit."
-keywords: ["perpetuals", "funding rate", "Pacifica", "Phoenix", "Bulk", "delta neutral", "hedge"]
+description: "The hedge that removes price risk."
 ---
 
-import { Term } from "/snippets/term.mdx";
+## What it does
 
-## Role in the vault
+The vault opens a short SOL position the same size as your deposit. When SOL's price moves, the hedge moves the other way, so your deposit keeps its value in SOL.
 
-<Term
-  word="perpetual hedge"
-  part="noun"
-  phonetic="per · pech · oo · ul · hej"
-  example="When SOL dropped, the perpetual hedge booked the move as profit."
->
-  A short SOL perpetual position sized against your deposit. It cancels price exposure and earns funding and downside moves.
-</Term>
+## How it earns
 
-The hedge is what makes a Thaler vault delta-neutral. It is a short SOL perpetual sized against your principal deposit, so a move in SOL's price does not on its own change the value of what you put in.
+| Source | When |
+|--------|------|
+| Funding | When long traders pay short traders, which is most of the time |
+| Falling prices | Every time SOL falls, the hedge takes profit and resets |
 
-It also earns, in two ways:
+Profit is paid in USDC and swapped back to SOL. This is why Thaler earns most when other yield earns least.
 
-| Source | When it pays |
-|--------|--------------|
-| Funding | When longs pay shorts, which on SOL has been most of the time |
-| Downside capture | Every time SOL falls, the move is booked as profit |
+## When SOL rises
 
-## Funding
+The hedge uses SOL as collateral, so its collateral grows as SOL rises. If it needs more, the risk engine adds SOL from the lending loop. The hedge has held through rallies from $65 to $84 and from $74 to $110.
 
-<Term
-  word="funding rate"
-  part="noun"
-  phonetic="fun · ding · rayt"
-  example="Longs paid the funding rate to shorts for most of the month."
->
-  The payment that longs and shorts exchange on a perpetual to keep its price close to spot. When it is positive, the short side gets paid.
-</Term>
+## Supported markets
 
-On the live vaults, funding paid the short 65 to 70 % of hours held in July 2026, and more than 85 % of the time from mid August to mid September. Funding can turn negative, but it has done so less than about 20 % of the time. It is a stream that mostly runs toward the vault, not one that only ever does.
+![Pacifica, Phoenix and Bulk](/images/strategy/perpetuals.jpeg)
 
-## Downside capture
-
-When SOL falls, the short is in profit. The engine closes it to realise that profit, which settles in USDC, swaps the USDC back to SOL, and reopens the short at its base size at the new lower price. The effect is like dollar-cost averaging into more SOL while the price falls.
-
-This is the part of the strategy that earns most exactly when staking, lending and other long-based yields earn least. In the four weeks before launch, the team's own vaults returned over 15 % in SOL, most of it during a sharp decline.
-
-## Holding through rallies
-
-A rally is when a short is under pressure. Two things keep it safe:
-
-1. **SOL is the collateral.** The short is margined in SOL, so as SOL rises the dollar value of that margin rises too.
-2. **Extra margin on demand.** If the liquidation buffer thins, the engine borrows extra SOL from the lending loop's headroom and posts it as margin. When the short is later reset, that SOL is repaid.
-
-The hedge has held through SOL rallies from $65 to $84 and from $74 to $110 without a liquidation. See [Track record](/overview/track-record#stress-events).
-
-## Supported venues
-
-<img src="/images/strategy/perpetuals.jpeg" alt="Pacifica, Phoenix and Bulk" className="rounded-xl" />
-
-| Venue | Status |
-|-------|--------|
-| Pacifica | Live. Over $500K of Thaler volume as of November 2026 |
-| Phoenix | Supported since v1.1 |
+| Market | Status |
+|--------|--------|
+| Pacifica | Live |
+| Phoenix | Live |
 | Bulk | In testing |
 
-[Pulse Router](/overview/architecture#pulse-router) compares funding conditions across venues and routes each vault to the best one.
-
-## Why a perpetual
-
-A perpetual never expires, so the vault can hold it for its whole life without rolling it. Its funding adjusts continuously and pays every funding period rather than at a single settlement.
-
-## When funding compresses
-
-As perpetual markets mature and more people run the same hedge, funding is likely to compress. It does not disappear: people still pay a premium to be long, and there are still arbitrage opportunities. Downside capture does not depend on funding at all, and the staking and lending legs keep earning either way.
-
-## Next read
-
-<Columns cols={2}>
-  <Card title="Structural floor" icon="shield-check" href="/security/yield-floor">
-    What the strategy is designed to earn in any market.
-  </Card>
-  <Card title="Custody and policy" icon="key" href="/overview/custody-and-policy">
-    Where the hedge's limits are fixed.
-  </Card>
-</Columns>
+Pulse Router picks the best one for your vault.

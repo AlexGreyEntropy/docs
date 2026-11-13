@@ -1,107 +1,39 @@
 ---
 title: "Strategies"
-description: "The three legs every Thaler vault uses to earn, how they balance each other through market cycles, and the six risk profiles of Thaler One."
-keywords: ["strategy", "liquid staking", "lending loop", "perpetual hedge", "Thaler One", "risk profile"]
+description: "How a vault earns, and the six risk profiles."
 ---
 
-import { Term } from "/snippets/term.mdx";
+## Three parts
 
-## Three legs
+| Part | What it earns |
+|------|---------------|
+| [Staking](/strategies/liquid-staking) | Solana staking rewards |
+| [Lending](/strategies/lending-markets) | Extra yield from looping staked SOL |
+| [Hedge](/strategies/perpetual-markets) | Funding payments, and profit when SOL falls |
 
-A Thaler vault runs three legs at once. Each earns from a different source, and the conditions that slow one down tend to speed another up.
+## How they fit together
 
-| Leg | Source of return | Page |
-|-----|------------------|------|
-| Liquid staking | Solana staking rewards, paid into the LST exchange rate | [Liquid staking](/strategies/liquid-staking) |
-| Lending loop | LST yield minus the SOL borrow rate, compounding | [Lending markets](/strategies/lending-markets) |
-| Perpetual hedge | Funding paid by longs, plus profit captured when SOL falls | [Perpetual markets](/strategies/perpetual-markets) |
+1. Your SOL is staked into a staking token.
+2. The staking token is looped on a lending market to earn more.
+3. A short position is opened against your deposit, so SOL's price does not change its value.
 
-<Note>
-  Liquidity provision was part of the strategy in Round 1 of the private beta. It was removed
-  from Round 2 onwards.
-</Note>
-
-## How the legs work together
-
-1. Your SOL is staked into a liquid staking token.
-2. The LST is supplied to a lending loop that borrows SOL against it and stakes again, earning the spread.
-3. A small extra borrow funds a short SOL perpetual, sized against your deposit, with SOL as its collateral.
-
-The short cancels the price exposure of your principal. When SOL falls, the short is closed to book the profit, the profit is swapped from USDC to SOL, and the short is reopened at the lower price. When SOL rises, the lending loop keeps compounding and funding usually flows to the short, while extra SOL from the loop's headroom is added as margin if the short needs it.
-
-| Market | Lending loop | Perpetual hedge | Overall |
-|--------|--------------|-----------------|---------|
-| Calm or sideways | Earns steadily | Earns little | Slower return |
-| Rising | Earns and compounds | Earns funding, holds under pressure | Steady return |
-| Falling | Earns | Captures the move as profit | Highest return |
-| Volatile | Earns | Captures dips and pullbacks | Higher return |
-
-## Strategy families
-
-<Term
-  word="Thaler One"
-  part="proper noun"
-  phonetic="tah · ler · wun"
-  example="Every vault today runs Thaler One."
->
-  The first Thaler strategy family. It earns from liquid staking, a lending loop and a short perpetual hedge, in SOL.
-</Term>
-
-Every Thaler One vault uses the same three legs. The risk profile you pick decides how hard the strategy leans on each one.
+When SOL falls, the hedge takes profit and resets at the lower price. When SOL rises, the lending loop keeps earning and the hedge usually earns funding.
 
 ## Risk profiles
 
-<Term
-  word="risk profile"
-  part="noun"
-  phonetic="risk · proh · fyle"
-  example="I picked the Safe risk profile for my first vault."
->
-  The setting you choose at creation, from Safe to YOLO, that decides how hard the strategy leans on each yield source. It is fixed for the life of the vault.
-</Term>
+You pick one when you create a vault. It cannot be changed later.
 
-| Risk profile | Deposit band | Character |
-|--------------|--------------|-----------|
-| Safe | 6 to 1,111 SOL | Lowest leverage, widest safety margins |
-| Conservative | 6 to 1,111 SOL | A small step toward the lending loop |
-| Balanced | 8 to 1,111 SOL | Even weight between loop carry and hedge income |
-| Optimistic | 11 to 1,112 SOL | More weight on the hedge |
-| Aggressive | 9 to 1,111 SOL | Higher leverage, hedge income dominates |
-| YOLO | 8 to 1,111 SOL | Highest leverage, most variable returns |
+| Profile | Deposit |
+|---------|---------|
+| Safe | 6 to 1,111 SOL |
+| Conservative | 6 to 1,111 SOL |
+| Balanced | 8 to 1,111 SOL |
+| Optimistic | 11 to 1,112 SOL |
+| Aggressive | 9 to 1,111 SOL |
+| YOLO | 8 to 1,111 SOL |
 
-Across profiles, the strategy targets about **8.2 % to 20 % a year**, net of the service fee, with higher profiles at the top of that range and with a thinner margin for error. For reference, Safe targets around 11 %, Balanced around 13 % and Aggressive around 16 %.
-
-The minimums are not arbitrary. They clear the operating minimums of the underlying protocols. For example, short profits on Pacifica settle in USDC and need at least $10 to swap back to SOL.
+Higher profiles aim for higher returns and take more risk. Across all profiles, the target is **8.2 % to 20 % a year**, after fees.
 
 ## Structural floor
 
-The steadiest parts of the strategy are designed to hold a return near **7 to 8 % a year** whether the next months are bullish or bearish. Most of that comes from staking and the lending loop. See [Structural floor](/security/yield-floor) for what this is and what it is not.
-
-## What is the same in every profile
-
-- An isolated vault and a dedicated worker.
-- Auto-compound or auto-claim every 4 weeks.
-- Access to Yield Upfront.
-- A 4-week lock period and no closing penalty after it.
-- The 11 % service fee on generated yield only.
-
-## What stays private
-
-Exact leverage values, rebalance thresholds and venue weights are not published. Publishing them would let others front-run rebalances. The legs, venues and rules are public; the calibration is not.
-
-## Next read
-
-<Columns cols={2}>
-  <Card title="Liquid staking" icon="layers" href="/strategies/liquid-staking">
-    The base of every vault.
-  </Card>
-  <Card title="Lending markets" icon="banknote" href="/strategies/lending-markets">
-    The loop on Kamino and Jupiter Lend.
-  </Card>
-  <Card title="Perpetual markets" icon="scale" href="/strategies/perpetual-markets">
-    The hedge, and why it earns most when SOL falls.
-  </Card>
-  <Card title="Creating a vault" icon="plus" href="/vault/create">
-    Pick a profile and open a vault.
-  </Card>
-</Columns>
+The strategy is designed to earn near **7 to 8 % a year** in any market. This is a target, not a guarantee. See [Structural floor](/security/yield-floor).

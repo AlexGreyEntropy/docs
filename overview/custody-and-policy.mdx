@@ -1,89 +1,31 @@
 ---
 title: "Custody and policy"
-description: "Who holds the keys, who can sign for a vault, and how custody changes after the audit. Today: an isolated Privy agentic wallet. Next: a Squads smart account with immutable on-chain policies."
-keywords: ["non-custodial", "Privy", "agentic wallet", "authorization key", "Squads", "smart account", "policy"]
+description: "Who can move your funds, today and after the audit."
 ---
 
-import { Term } from "/snippets/term.mdx";
+## Today
 
-## Two stages
+During the private beta, each vault is a **Privy agentic wallet**.
 
-Custody at Thaler moves in two stages. The strategy, the risk engine and the vault experience are the same in both. What changes is where the rules are enforced.
+- The vault holds only your funds.
+- Thaler runs the strategy with a limited key. It never sees your wallet's private key.
+- Payouts can only go to your wallet.
 
-| | Private beta (today) | After the audit |
-|-|----------------------|-----------------|
-| Vault wallet | Privy agentic wallet, one per vault | Squads smart account, one per vault |
-| Who can sign | The vault's worker, through a scoped authorization key tied to your embedded wallet | The vault's worker, only for instructions the on-chain policy allows |
-| Your private key | Never exposed to the worker | Never exposed to the worker |
-| Where the policy lives | Fixed at creation, checked when an action is signed | Immutable, checked on chain by Solana |
-| Pooling | None, every vault is isolated | None, every vault is isolated |
+## After the audit
 
-## Today: agentic wallets
-
-<Term
-  word="agentic wallet"
-  part="noun"
-  phonetic="ay · jen · tik · wol · it"
-  example="Each beta vault is its own agentic wallet."
->
-  The Privy wallet that holds a vault during the private beta. It can only sign the actions its policy allows, using an authorization key tied to your account.
-</Term>
-
-During the private beta, each vault is a Privy agentic wallet. The engine acts on it through an authorization key instead of your raw wallet private key. The authorization key is tied to your embedded wallet, and it is scoped to the actions the vault's policy allows.
-
-This keeps three things true:
-
-1. Your deposit sits in a wallet dedicated to your vault, not in a shared pool.
-2. The engine can run the strategy without ever seeing your private key.
-3. Settlement goes to your wallet. There is no path in the policy that sends a payout anywhere else.
-
-## After the audit: Squads smart accounts
-
-<Term
-  word="smart account"
-  part="noun"
-  phonetic="smart · uh · kownt"
-  example="After the audit, vaults move to Squads smart accounts."
->
-  A Squads on-chain account whose rules are enforced by Solana itself. Thaler vaults move to smart accounts with immutable on-chain policies once the audit is complete.
-</Term>
-
-Once the audit is done, vaults move to Squads smart accounts with immutable policies on chain. The policy is signed once at creation and cannot be changed afterwards, not by you, not by Thaler, and not under market stress.
-
-If a malicious actor builds a transaction that looks like a normal strategy step but adds one extra instruction, the on-chain policy refuses it.
+Vaults move to **Squads smart accounts** with policies enforced on chain. The policy is set once when you create the vault and cannot be changed by anyone.
 
 ## What the policy controls
 
-| Field | What it fixes |
-|-------|---------------|
-| Allowed assets | SOL, the supported liquid staking tokens, and USDC only as the settlement currency of hedge profits and funding |
-| Allowed venues | The supported staking providers, Kamino and Jupiter Lend for lending, Pacifica, Phoenix and Bulk for the hedge |
-| Risk profile | The leverage and sizing limits of the profile you picked |
-| Yield cycle | Auto-compound or auto-claim every 4 weeks, and auto-repay after Yield Upfront |
-| Closing rules | Lock period, order of unwind, and your wallet as the only payout address |
+| Item | Detail |
+|------|--------|
+| Assets | SOL, supported staking tokens, USDC for hedge profits |
+| Markets | Supported staking, lending and perpetual markets only |
+| Limits | Set by your risk profile |
+| Payouts | Your wallet only |
 
-Any action outside this list is refused.
+Anything outside the policy is refused.
 
-## Isolation
+## No pooling
 
-Thaler does not pool deposits. Think of it as a private car through DeFi rather than a seat on a shared bus: your vault stops at Kamino, the perpetual venue and the staking provider on its own route. If one vault is ever exploited, every other vault is unaffected.
-
-## Comparison with pooled vaults
-
-| Property | Pooled vault | Thaler vault |
-|----------|--------------|--------------|
-| Who shares your risk | Every depositor | No one |
-| Strategy disclosure | Often private | Legs, venues and rules published |
-| Effect of one exploit | Everyone affected | One vault affected |
-| Rule changes | At the curator's discretion | Fixed at creation |
-
-## Next read
-
-<Columns cols={2}>
-  <Card title="Strategies" icon="chart-line" href="/strategies/index">
-    The three legs the policy allows.
-  </Card>
-  <Card title="Risk disclosure" icon="triangle-exclamation" href="/security/risk-disclosure">
-    The risks no policy can remove.
-  </Card>
-</Columns>
+Most yield vaults put everyone's funds in one place. Thaler does not. If one vault has a problem, no other vault is affected.

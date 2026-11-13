@@ -1,76 +1,27 @@
 ---
 title: "Structural floor"
-description: "The return the Thaler strategy is designed to hold in any market, near 7 to 8 % a year. Where it comes from, how it was tested, and why it is not yet a guarantee."
-keywords: ["structural floor", "yield floor", "minimum return", "delta neutral", "Monte Carlo"]
+description: "The return the strategy is designed to hold in any market."
 ---
 
-import { Term } from "/snippets/term.mdx";
+## What it is
 
-## Definition
+The strategy is designed to earn near **7 to 8 % a year**, whether the market goes up, down or sideways.
 
-<Term
-  word="structural floor"
-  part="noun"
-  phonetic="struk · cher · ul · flor"
-  example="Even in a flat month, the structural floor kept the vault earning."
->
-  The return the strategy is designed to hold in any market, near 7 to 8 % a year, from its steadiest sources. It is a design target, not a guarantee.
-</Term>
-
-<Warning>
-  The structural floor is a design target. It is not a guaranteed minimum return. A
-  guarantee would need the on-chain reserve, which is still being designed. See
-  [Principal safety](/security/principal-protection#the-reserve).
-</Warning>
+This is a target, not a guarantee.
 
 ## Where it comes from
 
-Solana staking alone pays about 5 to 6 % a year. The lending loop is what lifts the steady part of the return to 7 % and above.
-
-| Source | Contribution to the floor |
-|--------|---------------------------|
-| Liquid staking | The base rate, earned all the time |
-| Lending loop | Turns 5 to 6 % into 8 to 10 %, depending on leverage, at low liquidation risk because LST and SOL move together |
-| Perpetual hedge | Not counted in the floor. Funding and downside capture are upside on top |
-
-Because the floor is built from staking and the loop, it does not depend on funding staying positive or on the market moving.
+Staking pays about 5 to 6 % a year. The lending loop raises that to 8 % or more. The hedge is extra on top.
 
 ## How it was tested
 
-| Method | Scope |
-|--------|-------|
-| Monte Carlo simulation | Over 200,000 iterations across risk profiles |
-| Mainnet operation | Live vaults since June 2026, through rallies, sell-offs and rate spikes |
+- Over 200,000 simulations.
+- Live vaults on Solana mainnet since June 2026.
 
-On mainnet so far, the vaults have earned more than the floor. As of 13 November 2026, the current APR across live vaults was 15.45 %.
+So far, live vaults have earned above the floor. The current APR was 15.45 % on 13 November 2026.
 
-## Floor and target range
+## What can push returns lower
 
-| | Value |
-|-|-------|
-| Structural floor | Near 7 to 8 % a year |
-| Target range across profiles | 8.2 % to 20 % a year, net |
-
-Higher risk profiles aim higher in the range but have a thinner margin for error. The floor applies to the strategy design, not separately per profile.
-
-## What can push returns below the floor
-
-- A failure or exploit at a third-party protocol.
-- A severe LST depeg that forces the lending loop to unwind.
-- A sustained period where the SOL borrow rate stays above staking yield.
-- Very short holding periods, where setup costs outweigh yield.
-
-## Why a floor and not a fixed rate
-
-A fixed rate would mean either giving up the upside the strategy produces in volatile markets, or promising more than can be delivered. The floor describes what the steady part of the strategy is built to earn and leaves the upside to you.
-
-## Next read
-
-<Columns cols={2}>
-  <Card title="Principal safety" icon="vault" href="/security/principal-protection">
-    What protects the deposit, and the planned reserve.
-  </Card>
-  <Card title="Strategies" icon="chart-line" href="/strategies/index">
-    The three legs behind the floor.
-  </Card>
-</Columns>
+- A hack or failure at a market the vault uses.
+- Borrow costs staying above staking yield for a long time.
+- Closing very soon after opening.
