@@ -37,7 +37,7 @@ Mintlify watches the local files and rebuilds on save. The dev server runs on `l
 - All code blocks need a language tag.
 - All internal links use root-relative paths without file extensions: `/strategies/index`.
 - Define terms in dictionary format, in plain markdown: `### term`, then `*(noun)* · *pho · net · ic*`, a one-line definition, and `*e.g.: ... **term** ...*`. Add every term to `glossary.mdx`.
-- Date every published number ("as of 13 November 2026"). Numbers are snapshots, never forecasts.
+- No live numbers (TVL, APR, vault counts, volume). They go stale. Link to the app dashboard instead. Fixed history, like closed rounds and past events, is fine.
 - Do not describe the structural floor or principal safety as guarantees until the on-chain reserve is live.
 
 ## Publishing
