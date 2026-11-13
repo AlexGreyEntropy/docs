@@ -1,104 +1,76 @@
 ---
-title: "Yield floor"
-description: "The minimum return Thaler commits to pay per tier on a full-year hold. How the floor is derived from the backtest and how it is honoured when realised yield falls short."
-keywords: ["yield floor", "guaranteed yield", "minimum return", "delta neutral"]
+title: "Structural floor"
+description: "The return the Thaler strategy is designed to hold in any market, near 7 to 8 % a year. Where it comes from, how it was tested, and why it is not yet a guarantee."
+keywords: ["structural floor", "yield floor", "minimum return", "delta neutral", "Monte Carlo"]
 ---
 
-## Commitment
+import { Term } from "/snippets/term.mdx";
 
-Each Thaler tier advertises a **yield floor** alongside its APY range. The floor is the minimum realised return the protocol commits to pay on a full-year hold of the vault. It is shown:
+## Definition
 
-- Next to the APY range on the Strategies page.
-- On every tier card in the Create Vault selector.
-- Under the strategy summary on the My Vaults dashboard.
+<Term
+  word="structural floor"
+  part="noun"
+  phonetic="struk · cher · ul · flor"
+  example="Even in a flat month, the structural floor kept the vault earning."
+>
+  The return the strategy is designed to hold in any market, near 7 to 8 % a year, from its steadiest sources. It is a design target, not a guarantee.
+</Term>
 
-| Tier | APY band (net) | Yield floor (net) |
-|------|----------------|-------------------|
-| Safe | 8.2 % to 13.8 % | 7.0 % |
-| Conservative | 8.4 % to 14.1 % | 7.1 % |
-| Balanced | 8.7 % to 14.8 % | 7.3 % |
-| Optimistic | 9.1 % to 15.6 % | 7.5 % |
-| Aggressive | 9.6 % to 17.2 % | 7.8 % |
-| YOLO | 10.2 % to 19.8 % | 8.1 % |
+<Warning>
+  The structural floor is a design target. It is not a guaranteed minimum return. A
+  guarantee would need the on-chain reserve, which is still being designed. See
+  [Principal safety](/security/principal-protection#the-reserve).
+</Warning>
 
-Higher-tier vaults run at higher leverage on the hedge and carry more variance, but the floor moves up with the tier so the commitment stays meaningful at every level.
+## Where it comes from
 
-## Derivation
+Solana staking alone pays about 5 to 6 % a year. The lending loop is what lifts the steady part of the return to 7 % and above.
 
-The protocol does not select the floor arbitrarily. It is derived from the V12 walk-forward backtest of the strategy across the full live history of the supported venues.
+| Source | Contribution to the floor |
+|--------|---------------------------|
+| Liquid staking | The base rate, earned all the time |
+| Lending loop | Turns 5 to 6 % into 8 to 10 %, depending on leverage, at low liquidation risk because LST and SOL move together |
+| Perpetual hedge | Not counted in the floor. Funding and downside capture are upside on top |
 
-<Steps>
-  <Step title="Run the strategy over every twelve-month window">
-    For each tier, simulate the realised payout assuming the user closes after a full year.
-  </Step>
-  <Step title="Collect the end-of-window returns">
-    Build a distribution of realised returns across every starting date in the dataset.
-  </Step>
-  <Step title="Take the worst observed return">
-    The lowest realised return in the distribution sets an upper bound on the floor.
-  </Step>
-  <Step title="Apply a safety margin">
-    The floor is set below the worst observed return so a year slightly worse than any
-    historical year is still inside the commitment.
-  </Step>
-</Steps>
+Because the floor is built from staking and the loop, it does not depend on funding staying positive or on the market moving.
 
-The floor is not a forward projection. It is a backward-derived commitment designed to hold even if the next year is worse than any past year on record.
+## How it was tested
 
-## Payout mechanics
+| Method | Scope |
+|--------|-------|
+| Monte Carlo simulation | Over 200,000 iterations across risk profiles |
+| Mainnet operation | Live vaults since June 2026, through rallies, sell-offs and rate spikes |
 
-When a vault closes and the realised return is below the floor, the protocol reserve covers the gap. The user receives at least the floor amount, net of the service fee.
+On mainnet so far, the vaults have earned more than the floor. As of 13 November 2026, the current APR across live vaults was 15.45 %.
 
-If the realised return exceeds the floor, the user receives the realised return. The floor is a lower bound, not an upper bound. Nothing about the yield floor caps the upside.
+## Floor and target range
 
-The formal payout rule:
+| | Value |
+|-|-------|
+| Structural floor | Near 7 to 8 % a year |
+| Target range across profiles | 8.2 % to 20 % a year, net |
 
-```
-payout_net = deposit + max(realised_net_yield, floor_amount)
-```
+Higher risk profiles aim higher in the range but have a thinner margin for error. The floor applies to the strategy design, not separately per profile.
 
-where `floor_amount = deposit × floor_apy × (holding_days / 365)`. For a 2 SOL deposit on the Balanced tier (floor 7.3 %) held for a full year, the floor amount is `2 × 0.073 = 0.146 SOL`.
+## What can push returns below the floor
 
-## What can break the floor
+- A failure or exploit at a third-party protocol.
+- A severe LST depeg that forces the lending loop to unwind.
+- A sustained period where the SOL borrow rate stays above staking yield.
+- Very short holding periods, where setup costs outweigh yield.
 
-Two scenarios are explicitly outside the floor:
+## Why a floor and not a fixed rate
 
-| Scenario | Effect |
-|----------|--------|
-| Smart-contract failure of a third-party venue | The floor does not apply to losses that originate in a venue's contract |
-| Closure before day 96 | The closure penalty is deducted from the payout; on early close the floor still applies, but the penalty can leave the user with less than the floor in net SOL terms |
-
-After day 96 the penalty is zero. The floor applies in full and there is no offset.
-
-## Why a floor rather than a fixed APY
-
-A fixed APY would imply the protocol can guarantee the exact return regardless of market conditions. That would require either:
-
-- Stripping the variable upside (the user gets exactly the fixed rate even when conditions are excellent), or
-- Promising more than the protocol can sustainably deliver.
-
-A floor preserves the variable upside the strategy actually produces and commits the protocol to a tested lower bound. Users participate in the realised yield above the floor and are protected below it.
-
-## Relationship to principal protection
-
-[Principal protection](/security/principal-protection) and the yield floor are separate commitments. Principal protection ensures the user receives at least the deposit back. The yield floor ensures the user receives at least the floor return on top of the deposit.
-
-| Outcome | Principal protection | Yield floor | Total payout |
-|---------|---------------------|-------------|--------------|
-| Best | Active | Active | Deposit + realised yield (above floor) |
-| Median | Active | Active | Deposit + realised yield (above floor) |
-| Worst supported | Active | Active | Deposit + floor |
-| Smart-contract failure | Not covered | Not covered | Partial recovery only |
-
-In the worst supported case the user receives `deposit + floor`. In the best case the user receives `deposit + realised_yield` where `realised_yield` is the strategy's actual performance.
+A fixed rate would mean either giving up the upside the strategy produces in volatile markets, or promising more than can be delivered. The floor describes what the steady part of the strategy is built to earn and leaves the upside to you.
 
 ## Next read
 
 <Columns cols={2}>
-  <Card title="Principal protection" icon="vault" href="/security/principal-protection">
-    The deposit-side guarantee that pairs with the yield floor.
+  <Card title="Principal safety" icon="vault" href="/security/principal-protection">
+    What protects the deposit, and the planned reserve.
   </Card>
-  <Card title="Risk disclosure" icon="triangle-exclamation" href="/security/risk-disclosure">
-    The residual risks that neither protection nor the floor covers.
+  <Card title="Strategies" icon="chart-line" href="/strategies/index">
+    The three legs behind the floor.
   </Card>
 </Columns>

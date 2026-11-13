@@ -1,81 +1,94 @@
 ---
 title: "What is Thaler"
-description: "What the protocol does, who it is for, and why a delta-neutral position earns more reliable yield than a single-strategy product."
-keywords: ["Thaler", "delta neutral", "Solana yield", "self custodial vault"]
+description: "What the protocol does, who it is for, and why a delta-neutral vault keeps earning when SOL falls."
+keywords: ["Thaler", "delta neutral", "Solana yield", "non-custodial vault", "Thaler One"]
 ---
+
+import { Term } from "/snippets/term.mdx";
 
 ## Definition
 
-Thaler is a Solana yield protocol. A user deposits SOL into a self-custodial vault. The vault allocates that SOL across three strategies that earn from independent sources: a liquid staking position, a deposit-borrow loop on a lending market, and a short perpetual position. The long staking exposure and the short perpetual exposure are sized to offset each other, so the realised return reflects the rates earned rather than the price of SOL during the holding period.
+<Term
+  word="Thaler"
+  part="proper noun"
+  phonetic="tah · ler"
+  example="I put my idle SOL into Thaler instead of just staking it."
+>
+  A Solana protocol that gives each depositor their own vault, running a delta-neutral strategy that earns yield from market movement rather than price direction.
+</Term>
 
-Each vault is bound by a Squads policy extension co-signed at creation. The policy is immutable once signed. The protocol cannot move funds outside the rules in the policy, and the policy enumerates the allowed assets, the allowed venues, the leverage cap, the claim cadence, and the closure procedure.
+You deposit SOL into a vault. The vault spreads it across three legs that earn from different sources: a liquid staking token, a lending loop, and a short perpetual position. The short is sized against your deposit, so a move in the price of SOL does not on its own change the value of what you put in. The return comes from staking rewards, the lending spread, funding payments and the profit the short books when SOL falls.
+
+Yield is measured in SOL. If SOL rises after you earn, that SOL is simply worth more in dollars.
+
+## The problem it solves
+
+Almost every way to earn yield on Solana is a long position underneath. Staking, lending, liquidity provision and the loops built on top of them earn while you hold and the price holds or rises. When SOL falls, the position falls with it, and the yield is rarely enough to cover the drop.
+
+The moment you most want a return is the moment these strategies pay the least. Yield and downside protection end up on opposite sides of the same trade. Thaler One is built to separate them.
+
+<img src="/images/strategy/delta-neutral.jpeg" alt="A balance between rising and falling markets" className="rounded-xl" />
 
 ## Sources of return
 
-| Pillar | What it earns | What it pays |
-|--------|----------------|----------------|
-| Liquid staking | Solana staking reward, paid into the LST exchange rate | Nothing |
-| Lending loop | Supply yield on Kamino + staking yield on collateral | The SOL borrow rate |
-| Perpetual hedge | Funding payments when SOL perpetual funding is positive | Funding payments when funding is negative; net positive over history |
+| Leg | What it earns | When it earns most |
+|-----|---------------|--------------------|
+| Liquid staking | Solana staking rewards, paid into the LST exchange rate | All the time |
+| Lending loop | The spread between LST yield and the SOL borrow rate, compounding | Calm and rising markets |
+| Perpetual hedge | Funding when longs pay shorts, plus profit captured on downward moves | Volatile and falling markets |
 
-In steady state the three pillars sum to a net positive rate. The exact decomposition shifts with conditions, which is the structural reason the total return is more stable than any single component.
+Because the hedge earns most when the long-based sources earn least, the vault keeps earning through both kinds of market. In a slow, sideways market returns are slower. In a volatile market, with dips and pullbacks, they are higher.
+
+## How Thaler compares
+
+| Approach | When SOL rises | When SOL falls | Return tracks |
+|----------|----------------|----------------|---------------|
+| Holding or staking SOL | Gains | Losses | Spot price |
+| Yield-bearing dollar | Yield only | Yield only | One source, usually trading activity |
+| Thaler vault | Yield, in SOL | Yield, in SOL, often more | Several rates plus market movement |
 
 ## Who it is for
 
 <Columns cols={2}>
-  <Card title="SOL holders seeking yield" icon="coins">
-    Users with idle SOL who want it to earn a return without converting to a stablecoin and
-    without giving up custody.
+  <Card title="SOL holders" icon="coins">
+    People with idle SOL who want it to earn more than staking, without converting to a
+    stablecoin and without betting on direction.
   </Card>
-  <Card title="Long-duration capital" icon="hourglass">
-    Capital that can sit in the vault long enough for the penalty schedule to decay to zero
-    (96 days). Closing after that point is free.
+  <Card title="Treasuries and DAOs" icon="building-columns">
+    Teams that hold SOL on the balance sheet and want a predictable, verifiable yield on it.
   </Card>
-  <Card title="Audit and integration teams" icon="shield-check">
-    Reviewers verifying custody, claim cadence, and closure rules before signing off on an
-    integration.
+  <Card title="Long-horizon capital" icon="hourglass">
+    Capital that can stay put for at least the four-week lock period, and ideally much
+    longer.
   </Card>
-  <Card title="Builders" icon="puzzle">
-    Teams that want a vault primitive they can route deposits into from a wallet or
-    aggregator.
+  <Card title="Reviewers and integrators" icon="shield-check">
+    Teams checking custody, policy and settlement rules before signing off on an integration.
   </Card>
 </Columns>
 
-## The case for delta-neutrality
+## What Thaler is not
 
-A long-only SOL position earns staking and lending yield but is fully exposed to the price of SOL. A short-only position pays or receives funding and is exposed in the opposite direction. Pairing both sides at matching size cancels the directional exposure and isolates the yield differential.
+**Not a pooled fund.** Every vault is isolated. If something happens to one vault, every other vault is unaffected.
 
-The realised outcome differs sharply by structure:
+**Not discretionary.** The strategy is rule-based. Every rebalance and safety action follows deterministic rules, inside the policy fixed when the vault was created.
 
-| Strategy | When SOL rises | When SOL falls | Realised return tracks |
-|----------|----------------|----------------|------------------------|
-| Long-only SOL | Strong appreciation | Loss | Spot price |
-| Short-only SOL | Loss | Appreciation | Inverse spot price |
-| Thaler vault (delta-neutral) | Yield only | Yield only | Rates earned |
+**Not a directional bet.** The hedge is sized against your deposit so the price of SOL does not drive your result.
 
-The user is exposed to the rates earned (staking yield, lending spread, perpetual funding), not the direction of SOL.
+**Not insurance.** The strategy is designed around a structural floor near 7 to 8 % a year, but that is a design target. The third-party protocols a vault uses carry risks no policy can remove. See [Risk disclosure](/security/risk-disclosure).
 
-## Scope
+**Not a token.** There is no Thaler token.
 
-Thaler is not a discretionary fund. The strategy executed by a vault is fixed at creation and enforced on chain. The protocol cannot widen the mandate, change the venues, or move assets outside the rules signed by the user.
+## Where it runs
 
-Thaler is not a directional bet on SOL. The hedge inside each vault is sized so the value of the position tracks the yield earned, not the price of SOL. Realised return is uncorrelated with SOL spot movement over the holding period.
-
-Thaler is not insurance. The protocol guarantees the per-tier yield floor advertised at creation and protects deposit principal through its reserve. The third-party venues the vault interacts with carry residual smart-contract and counterparty risk that no on-chain policy can fully eliminate. See [Risk disclosure](/security/risk-disclosure).
-
-## The beta in context
-
-The current beta accepts a fixed deposit of 2 SOL per vault. This equalises capacity across early users and keeps operational variance low during the first wave. After the beta closes, deposit sizing becomes variable and the protocol opens additional strategy families beyond Thaler One.
-
-The rest of the product is identical to the production target: same custody model, same claim mechanics, same closure rules. The beta does not collect any data the production build will not collect.
+Thaler runs on Solana mainnet through [thaler.finance](https://thaler.finance). A version for the Solana Mobile Seeker dApp Store, with email sign-in, is being prepared.
 
 ## Next read
 
 <Columns cols={2}>
   <Card title="Architecture" icon="layers" href="/overview/architecture">
-    The four components that make up a vault.
+    The engine, the router and how a vault is run.
   </Card>
-  <Card title="Custody and policy" icon="key" href="/overview/custody-and-policy">
-    Who holds the keys, and why the rules cannot change after signing.
+  <Card title="Track record" icon="chart-line" href="/overview/track-record">
+    What the vaults have done on mainnet so far.
   </Card>
 </Columns>

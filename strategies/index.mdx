@@ -1,126 +1,107 @@
 ---
 title: "Strategies"
-description: "The three pillars every Thaler vault uses to earn yield, and how they combine to produce stable returns through market cycles."
-keywords: ["strategy", "liquid staking", "lending", "perpetual hedge", "Thaler One"]
+description: "The three legs every Thaler vault uses to earn, how they balance each other through market cycles, and the six risk profiles of Thaler One."
+keywords: ["strategy", "liquid staking", "lending loop", "perpetual hedge", "Thaler One", "risk profile"]
 ---
 
-## Three-pillar design
+import { Term } from "/snippets/term.mdx";
 
-A Thaler vault runs three pillars in parallel. Each pillar earns from a different rate, and the same market conditions that compress one rate often widen another. The total return is therefore steadier than any one pillar alone.
+## Three legs
 
-| Pillar | Source of return | Page |
-|--------|------------------|------|
-| Liquid staking | Solana staking reward, paid into the LST exchange rate | [Liquid staking](/strategies/liquid-staking) |
-| Lending markets | Supply yield + staking yield on collateral, minus the SOL borrow rate | [Lending markets](/strategies/lending-markets) |
-| Perpetual markets | Funding rate received on a short SOL perpetual | [Perpetual markets](/strategies/perpetual-markets) |
+A Thaler vault runs three legs at once. Each earns from a different source, and the conditions that slow one down tend to speed another up.
 
-## How the pillars combine
+| Leg | Source of return | Page |
+|-----|------------------|------|
+| Liquid staking | Solana staking rewards, paid into the LST exchange rate | [Liquid staking](/strategies/liquid-staking) |
+| Lending loop | LST yield minus the SOL borrow rate, compounding | [Lending markets](/strategies/lending-markets) |
+| Perpetual hedge | Funding paid by longs, plus profit captured when SOL falls | [Perpetual markets](/strategies/perpetual-markets) |
 
-In steady state the three rates accrue independently. When funding is positive, the perpetual leg dominates the return. When borrow rates compress, the lending leg dominates. When SOL inflation is high, the staking leg dominates. The vault does not depend on any one pillar to meet the yield floor.
+<Note>
+  Liquidity provision was part of the strategy in Round 1 of the private beta. It was removed
+  from Round 2 onwards.
+</Note>
 
-The realised net rate equals:
+## How the legs work together
 
-```
-net_rate = staking_yield
-         + lending_supply_yield
-         + collateral_staking_yield
-         − sol_borrow_rate
-         + perpetual_funding_received
-         − service_fee_share
-```
+1. Your SOL is staked into a liquid staking token.
+2. The LST is supplied to a lending loop that borrows SOL against it and stakes again, earning the spread.
+3. A small extra borrow funds a short SOL perpetual, sized against your deposit, with SOL as its collateral.
 
-Each term varies independently. Aggregating them produces a tighter distribution than any single term in isolation.
+The short cancels the price exposure of your principal. When SOL falls, the short is closed to book the profit, the profit is swapped from USDC to SOL, and the short is reopened at the lower price. When SOL rises, the lending loop keeps compounding and funding usually flows to the short, while extra SOL from the loop's headroom is added as margin if the short needs it.
+
+| Market | Lending loop | Perpetual hedge | Overall |
+|--------|--------------|-----------------|---------|
+| Calm or sideways | Earns steadily | Earns little | Slower return |
+| Rising | Earns and compounds | Earns funding, holds under pressure | Steady return |
+| Falling | Earns | Captures the move as profit | Highest return |
+| Volatile | Earns | Captures dips and pullbacks | Higher return |
 
 ## Strategy families
 
-Thaler ships strategies in families. The first family is **Thaler One**, with six tiers from `Safe` to `YOLO`. Every tier uses the same three pillars; the difference is the weight assigned to each.
+<Term
+  word="Thaler One"
+  part="proper noun"
+  phonetic="tah · ler · wun"
+  example="Every vault today runs Thaler One."
+>
+  The first Thaler strategy family. It earns from liquid staking, a lending loop and a short perpetual hedge, in SOL.
+</Term>
 
-<AccordionGroup>
-  <Accordion title="Safe">
-    The largest share of capital sits in liquid staking. The lending leg runs at the lowest
-    leverage in the family. The hedge is sized only to keep the position market neutral, not
-    to extract funding income.
-  </Accordion>
-  <Accordion title="Conservative">
-    A small shift toward the lending leg. The hedge stays at the same low leverage as Safe.
-    Returns track the deposit-borrow spread on Kamino more closely than they do on Safe.
-  </Accordion>
-  <Accordion title="Balanced">
-    Roughly even weight between the lending leg and the hedge. The hedge runs at moderate
-    leverage so funding income contributes alongside the lending carry.
-  </Accordion>
-  <Accordion title="Optimistic">
-    A larger hedge at the same moderate leverage as Balanced. Returns are biased toward
-    funding income.
-  </Accordion>
-  <Accordion title="Aggressive">
-    The hedge runs at higher leverage. Funding becomes the dominant source of yield.
-    Rebalances happen more frequently to keep the position market neutral as size grows.
-  </Accordion>
-  <Accordion title="YOLO">
-    The hedge runs at the highest leverage the protocol allows. Returns are the most variable
-    in the family and the most sensitive to funding-rate regimes.
-  </Accordion>
-</AccordionGroup>
+Every Thaler One vault uses the same three legs. The risk profile you pick decides how hard the strategy leans on each one.
 
-## Published parameters
+## Risk profiles
 
-Each tier ships with a published APY band and a guaranteed yield floor. Both numbers are net of the 11 % service fee.
+<Term
+  word="risk profile"
+  part="noun"
+  phonetic="risk · proh · fyle"
+  example="I picked the Safe risk profile for my first vault."
+>
+  The setting you choose at creation, from Safe to YOLO, that decides how hard the strategy leans on each yield source. It is fixed for the life of the vault.
+</Term>
 
-| Tier | APY band | Yield floor |
-|------|----------|-------------|
-| Safe | 8.2 % to 13.8 % | 7.0 % |
-| Conservative | 8.4 % to 14.1 % | 7.1 % |
-| Balanced | 8.7 % to 14.8 % | 7.3 % |
-| Optimistic | 9.1 % to 15.6 % | 7.5 % |
-| Aggressive | 9.6 % to 17.2 % | 7.8 % |
-| YOLO | 10.2 % to 19.8 % | 8.1 % |
+| Risk profile | Deposit band | Character |
+|--------------|--------------|-----------|
+| Safe | 6 to 1,111 SOL | Lowest leverage, widest safety margins |
+| Conservative | 6 to 1,111 SOL | A small step toward the lending loop |
+| Balanced | 8 to 1,111 SOL | Even weight between loop carry and hedge income |
+| Optimistic | 11 to 1,112 SOL | More weight on the hedge |
+| Aggressive | 9 to 1,111 SOL | Higher leverage, hedge income dominates |
+| YOLO | 8 to 1,111 SOL | Highest leverage, most variable returns |
 
-The yield floor is the minimum return the protocol commits to pay on a full-year hold. It is honoured by the protocol reserve, not by a venue. See [Yield floor](/security/yield-floor).
+Across profiles, the strategy targets about **8.2 % to 20 % a year**, net of the service fee, with higher profiles at the top of that range and with a thinner margin for error. For reference, Safe targets around 11 %, Balanced around 13 % and Aggressive around 16 %.
 
-## Why three pillars rather than one
+The minimums are not arbitrary. They clear the operating minimums of the underlying protocols. For example, short profits on Pacifica settle in USDC and need at least $10 to swap back to SOL.
 
-A single-pillar strategy carries the variance of one rate. When that rate moves against the position, the entire payout is exposed.
+## Structural floor
 
-The three pillars in Thaler's design are driven by different underlying conditions:
+The steadiest parts of the strategy are designed to hold a return near **7 to 8 % a year** whether the next months are bullish or bearish. Most of that comes from staking and the lending loop. See [Structural floor](/security/yield-floor) for what this is and what it is not.
 
-| Pillar | Sensitive to |
-|--------|--------------|
-| Liquid staking | Solana network issuance and validator performance |
-| Lending leg | Kamino utilisation and SOL borrow rate |
-| Perpetual hedge | SOL perpetual funding regime |
+## What is the same in every profile
 
-These sensitivities are largely uncorrelated. Periods where one rate compresses are usually periods where another rate widens, because the same market conditions push them in opposite directions. The aggregate is more stable than any individual rate.
+- An isolated vault and a dedicated worker.
+- Auto-compound or auto-claim every 4 weeks.
+- Access to Yield Upfront.
+- A 4-week lock period and no closing penalty after it.
+- The 11 % service fee on generated yield only.
 
-## What is identical across tiers
+## What stays private
 
-Every tier shares the same:
-
-- Custody model: self-custodial Squads smart account.
-- Claim cadence: 24-hour cooldown between claims.
-- Closure rules and penalty schedule.
-- Principal protection commitment ([Principal protection](/security/principal-protection)).
-- Yield floor guarantee ([Yield floor](/security/yield-floor)).
-
-Only the strategy parameters and the resulting return profile differ.
-
-## Confidential parameters
-
-Exact leverage values, rebalance thresholds, and venue weights are part of the strategy signature and are not published. Reviewers with a legitimate need may request the audited specification under NDA at `audit@thaler.finance`.
+Exact leverage values, rebalance thresholds and venue weights are not published. Publishing them would let others front-run rebalances. The legs, venues and rules are public; the calibration is not.
 
 ## Next read
 
 <Columns cols={2}>
   <Card title="Liquid staking" icon="layers" href="/strategies/liquid-staking">
-    The base of every vault and the source of the floor yield.
+    The base of every vault.
   </Card>
   <Card title="Lending markets" icon="banknote" href="/strategies/lending-markets">
-    The carry loop on Kamino, with Jupiter Lend and MarginFi coming next.
+    The loop on Kamino and Jupiter Lend.
   </Card>
   <Card title="Perpetual markets" icon="scale" href="/strategies/perpetual-markets">
-    The hedge leg and the funding income it generates.
+    The hedge, and why it earns most when SOL falls.
   </Card>
-  <Card title="Yield floor" icon="shield-check" href="/security/yield-floor">
-    How the floor is set and what backs the commitment.
+  <Card title="Creating a vault" icon="plus" href="/vault/create">
+    Pick a profile and open a vault.
   </Card>
 </Columns>

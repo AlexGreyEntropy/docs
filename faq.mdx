@@ -1,145 +1,141 @@
 ---
 title: "Frequently asked questions"
-description: "Short answers to the most common questions about Thaler vaults. Custody, mechanics, fees, and guarantees in one page."
-keywords: ["FAQ", "questions", "Thaler", "Solana"]
+description: "Short answers to the most common questions about Thaler vaults: custody, yield, Yield Upfront, closing, fees and risk."
+keywords: ["FAQ", "questions", "Thaler", "Solana", "Yield Upfront", "auto-compound"]
 ---
 
-## Custody and control
+## The basics
 
 <AccordionGroup>
-  <Accordion title="Is Thaler self-custodial?" defaultOpen>
-    Yes. Each vault is a Squads smart account that the user co-owns. The protocol cannot move
-    funds out of a vault without instructions that satisfy the immutable policy the user
-    signed at creation. See [Custody and policy](/overview/custody-and-policy).
+  <Accordion title="What is Thaler?" defaultOpen>
+    A non-custodial yield protocol on Solana. You deposit SOL into your own vault, which runs a
+    delta-neutral strategy across liquid staking, a lending loop and a short perpetual hedge.
+    It earns from market movement, not price direction. See
+    [What is Thaler](/overview/what-is-thaler).
   </Accordion>
-  <Accordion title="Do I need to manage the position?">
-    No. The strategy is non-discretionary. The dedicated worker handles rebalancing, lending
-    leg sizing, and hedge maintenance inside the policy bounds. The user signs at creation, at
-    claim, and at close. Nothing else.
+  <Accordion title="Is there a Thaler token?">
+    No. There is no token, no presale and no airdrop. If you see one, it is not us.
   </Accordion>
-  <Accordion title="Where are the funds while the vault is running?">
-    Inside the Squads smart account that the user co-owns. The smart account holds the
-    deposit, the liquid staking token, the lending position, and the perpetual margin. The
-    protocol never has custody of user funds.
+  <Accordion title="Can I use Thaler now?">
+    Thaler is in private beta on Solana mainnet. Request access at
+    [thaler.finance](https://thaler.finance).
   </Accordion>
-  <Accordion title="Can the protocol change the rules after the vault is open?">
-    No. The Squads policy extension is immutable once signed. If the protocol updates the rule
-    set, it deploys a new policy version. Existing vaults continue under the policy they
-    signed.
+  <Accordion title="What can I deposit?">
+    SOL. Yield is measured and paid in SOL too.
   </Accordion>
 </AccordionGroup>
 
-## Guarantees
+## Custody
 
 <AccordionGroup>
-  <Accordion title="Is the principal really protected?">
-    On a normal close, yes. The protocol reserve covers any shortfall caused by ordinary
-    market variance. The protection does not extend to a smart-contract failure of a
-    third-party venue, a loss of user keys, or a close inside the penalty schedule. See
-    [Principal protection](/security/principal-protection).
+  <Accordion title="Is Thaler custodial?">
+    No. Each vault is its own isolated wallet. During the private beta it is a Privy agentic
+    wallet that the engine operates through a scoped authorization key, never your private key.
+    After the audit, vaults move to Squads smart accounts with immutable on-chain policies. See
+    [Custody and policy](/overview/custody-and-policy).
   </Accordion>
-  <Accordion title="What is the yield floor?">
-    A per-tier minimum return the protocol commits to pay on a full-year hold. The floor is
-    derived from the worst observed twelve-month window in the V12 backtest of the strategy.
-    Realised yield can exceed the floor; it cannot fall below it on a normal close. See
-    [Yield floor](/security/yield-floor).
+  <Accordion title="Are deposits pooled?">
+    No. Every vault holds only its owner's funds. If one vault were ever exploited, every other
+    vault would be unaffected.
   </Accordion>
-  <Accordion title="What if a venue is exploited?">
-    Smart-contract failure of an external venue is the residual risk that no on-chain policy
-    can fully eliminate. If Kamino, the perpetual exchange, or the liquid staking provider
-    lose user funds, the loss flows through to the vaults holding positions in them at the
-    time. The protocol mitigates this by routing only through venues with multi-year track
-    records and capping exposure per venue. See [Risk disclosure](/security/risk-disclosure).
+  <Accordion title="Do I need to manage anything?">
+    No. Your dedicated worker rebalances, compounds, claims and hedges inside the vault's
+    policy. You sign to create a vault, to take Yield Upfront, and to close.
   </Accordion>
 </AccordionGroup>
 
-## Deposits and claims
+## Yield
 
 <AccordionGroup>
-  <Accordion title="Why is the deposit fixed at 2 SOL?">
-    The beta uses a fixed deposit to equalise capacity across early users and to keep
-    operational variance low during the first wave. After the beta closes, deposit sizing
-    becomes variable.
+  <Accordion title="How much can I earn?">
+    The strategy targets 8.2 % to 20 % a year, net of fees, depending on the risk profile. As
+    of 13 November 2026, the current APR across live vaults was 15.45 %. These are not promises.
   </Accordion>
-  <Accordion title="Can I deposit in USDC instead of SOL?">
-    Yes. The Create Vault screen accepts a USDC equivalent. The protocol routes USDC into SOL
-    through a same-chain LI.FI swap before funding the vault. The route and the estimated
-    USDC required are shown before signing.
+  <Accordion title="What happens when SOL falls?">
+    The short hedge books the fall as profit, which is swapped to SOL. Falling markets are when
+    the vault tends to earn most.
   </Accordion>
-  <Accordion title="How often can I claim yield?">
-    Once every 24 hours per vault. The cooldown is enforced by the policy at the smart-account
-    level. A claim does not affect the strategy and does not reset the closure penalty
-    schedule. See [Claiming yield](/vault/claim).
+  <Accordion title="What happens when SOL rises?">
+    The lending loop keeps compounding and funding usually pays the short. Your yield, already
+    in SOL, is worth more in dollars.
   </Accordion>
-  <Accordion title="What asset does the claim pay out in?">
-    Most claims pay in the liquid staking token of the leg that produced the yield (jitoSOL or
-    mSOL). Some claims pay in SOL when the perpetual funding side dominates the realised
-    amount.
+  <Accordion title="Is there a guaranteed minimum?">
+    Not yet. The strategy is designed around a structural floor near 7 to 8 % a year, but a
+    guarantee needs the on-chain reserve, which is still being designed. See
+    [Structural floor](/security/yield-floor).
+  </Accordion>
+  <Accordion title="How do I get my yield?">
+    Every 4 weeks. Auto-compound is on by default and adds yield back into the vault. Switch it
+    off and yield is auto-claimed to your wallet instead. See [Yield and claims](/vault/claim).
+  </Accordion>
+  <Accordion title="What is Yield Upfront?">
+    Claim up to 6 months of expected net yield on the day you open a vault. The vault locks,
+    runs on auto-repay, and its own yield settles the claim, typically in about 4 to 5 months.
+    See [Yield Upfront](/vault/yield-upfront).
   </Accordion>
 </AccordionGroup>
 
-## Closure
+## Risk profiles and deposits
 
 <AccordionGroup>
-  <Accordion title="How long does a close take?">
-    A close runs in one transaction. Most closes confirm in under a minute. If a venue is
-    congested, the worker retries until the position is fully unwound.
+  <Accordion title="What are the risk profiles?">
+    Six: Safe, Conservative, Balanced, Optimistic, Aggressive and YOLO. The profile sets how
+    hard the strategy leans on each leg and is fixed for the life of the vault.
   </Accordion>
-  <Accordion title="What if I close early?">
-    A closure penalty applies. It starts at 3 % of the deposit on day 0 and decays linearly to
-    0 % on day 96. After day 96 a close is free. See [Closing a vault](/vault/close).
+  <Accordion title="How much do I need to deposit?">
+    It depends on the profile, from 6 SOL (Safe, Conservative) up to 11 SOL (Optimistic), with a
+    maximum of 1,111 SOL. See [Creating a vault](/vault/create#deposit-bands).
   </Accordion>
-  <Accordion title="Can I close before the perpetual hedge settles?">
-    The close transaction settles the hedge as part of the same operation. The user does not
-    need to close the hedge separately or wait for an off-chain confirmation.
+  <Accordion title="Can I run more than one vault?">
+    Yes. You can run several vaults side by side, each with its own profile.
   </Accordion>
 </AccordionGroup>
 
-## Fees and returns
+## Closing
 
 <AccordionGroup>
-  <Accordion title="What fees does Thaler charge?">
-    Three fees: a small vault creation fee at creation, an 11 % service fee on realised yield
-    (collected at claim and at close), and a closure penalty that only applies on closures
-    before day 96. See [Fees](/vault/fees).
+  <Accordion title="When can I close my vault?">
+    After 4 weeks. There is no closing penalty after that. If you took Yield Upfront, the vault
+    stays locked until the claim is settled.
   </Accordion>
-  <Accordion title="Is the headline APY the gross or net rate?">
-    Net. The APY range shown on the Strategies page is the user's net return after the 11 %
-    service fee is taken. No further subtraction is required to compare across tiers.
-  </Accordion>
-  <Accordion title="Why does the simulator show different ROI for shorter windows?">
-    The simulator compounds the per-tier APY across the selected holding period. A 30-day
-    holding window at an 11.75 % APY produces about 0.92 % realised ROI; the same band on a
-    365-day window produces the full 11.75 %. The numbers stay internally consistent with the
-    headline APY.
+  <Accordion title="What do I get back?">
+    Your deposit plus unclaimed yield, minus the 11 % service fee on that yield, plus half of
+    your vault creation fee, all in SOL. See [Closing a vault](/vault/close).
   </Accordion>
 </AccordionGroup>
 
-## Strategy parameters
+## Fees
 
 <AccordionGroup>
-  <Accordion title="Where can I see the strategy parameters?">
-    The headline figures (APY range, yield floor, supported venues) are public on the
-    Strategies page in the app and on this site. Detailed strategy parameters (leverage
-    values, rebalance thresholds, exact venue weights) are not published; they are part of
-    the strategy signature. Auditors and integration partners with a legitimate need can
-    request them under NDA via `audit@thaler.finance`.
+  <Accordion title="What does Thaler charge?">
+    An 11 % service fee on generated yield, and a small vault creation fee, half of which is
+    refunded at close. No deposit fee, management fee or closing penalty. See [Fees](/vault/fees).
   </Accordion>
-  <Accordion title="Why are the exact weights kept private?">
-    The protocol's edge depends on the precise calibration of LTV buffers, leverage caps, and
-    rebalance thresholds. Publishing them would let other market participants front-run the
-    rebalances. The on-chain policy is verifiable in aggregate without exposing the detailed
-    numbers.
+  <Accordion title="Are the returns shown gross or net?">
+    Net of the service fee.
+  </Accordion>
+</AccordionGroup>
+
+## Strategy details
+
+<AccordionGroup>
+  <Accordion title="Which protocols does a vault use?">
+    Nine liquid staking tokens, Kamino and Jupiter Lend for lending, and Pacifica, Phoenix and
+    Bulk (in testing) for the hedge. Pulse Router picks the best one for each leg.
+  </Accordion>
+  <Accordion title="Why are exact parameters private?">
+    Leverage values, rebalance thresholds and venue weights would let others front-run
+    rebalances. The legs, venues and rules are public; the calibration is not.
   </Accordion>
 </AccordionGroup>
 
 ## Still need help?
 
 <Columns cols={2}>
-  <Card title="Open the app" icon="arrow-up-right-from-square" href="https://thaler.finance">
-    Connect a Solana wallet and create your first vault.
+  <Card title="Glossary" icon="book" href="/glossary">
+    Every Thaler term, defined.
   </Card>
   <Card title="Email support" icon="envelope" href="mailto:support@thaler.finance">
-    Reach the team directly for anything not covered here.
+    Reach the team directly.
   </Card>
 </Columns>

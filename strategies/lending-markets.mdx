@@ -1,76 +1,68 @@
 ---
 title: "Lending markets"
-description: "The lending leg of a Thaler vault. How the deposit-borrow loop works, why the spread is positive over time, and how the policy bounds the position."
-keywords: ["lending", "Kamino", "borrow", "carry", "liquid staking collateral"]
+description: "The lending leg of a Thaler vault. How the LST/SOL loop earns the spread, why its liquidation risk is low, and how the engine reacts when rates move."
+keywords: ["lending loop", "Kamino", "Kamino Multiply", "Jupiter Lend", "Jupiter Multiply", "LTV", "spread"]
 ---
 
-## Role within the vault
+import { Term } from "/snippets/term.mdx";
 
-After the staking leg, the vault holds a liquid staking token (jitoSOL or mSOL). The lending leg supplies that token as collateral on a lending market and borrows SOL against it. A portion of the borrowed SOL is restaked into the same LST; the remainder funds the perpetual hedge.
+## Role in the vault
 
-The leg simultaneously earns three rates:
+<Term
+  word="lending loop"
+  part="noun"
+  phonetic="len · ding · loop"
+  example="The lending loop on Kamino Multiply earned the spread while SOL went sideways."
+>
+  Supplying an LST as collateral, borrowing SOL against it, and staking that SOL again, to earn the gap between staking yield and borrow cost.
+</Term>
 
-| Component | Direction | Source |
-|-----------|-----------|--------|
-| Staking yield on the supplied LST | Income | Solana network |
-| Lending supply yield | Income | Kamino borrowers |
-| SOL borrow rate | Cost | Paid to Kamino suppliers |
+Solana staking pays roughly 5 to 6 % a year. The lending loop is how Thaler turns that into 8, 9 or 10 %. The vault supplies its LST, borrows SOL, stakes it into more LST, and repeats up to the leverage its risk profile allows. It earns staking yield on the larger position and pays the SOL borrow rate on the debt.
 
-When the sum of income components exceeds the borrow cost, the leg adds yield to the vault. The protocol selects configurations where this has been the case across the live history of the supported venues.
+| Component | Direction |
+|-----------|-----------|
+| Staking yield on the supplied LST | Income |
+| Lending rewards and farm tokens, swapped to SOL | Income |
+| SOL borrow rate | Cost |
+
+The loop is the only part of the strategy that compounds. Its earnings grow the collateral side, which lowers the loan-to-value over time and gives the vault more headroom.
 
 ## Supported markets
 
+<img src="/images/strategy/lending.jpeg" alt="Kamino and Jupiter Lend" className="rounded-xl" />
+
 | Market | Status |
 |--------|--------|
-| Kamino Lend | Live |
-| Jupiter Lend | Coming next |
-| MarginFi | Coming next |
+| Kamino (Multiply) | Live |
+| Jupiter Lend (Multiply) | Live since v1.1 |
 
-The lending leg currently runs on **Kamino Lend**. Kamino is a Solana lending market with on-chain liquidity, public reserves, and well-documented liquidation parameters. The vault uses Kamino because:
+[Pulse Router](/overview/architecture#pulse-router) compares the two on borrow rates and spread and routes the vault to the better one at the time.
 
-- It accepts jitoSOL and mSOL as supply collateral with reasonable loan-to-value caps.
-- Its borrow rate model is curve-based and updates continuously with utilisation, which makes the spread predictable.
-- It exposes a programmatic interface that the worker can use without manual intervention.
+## Why liquidation risk is low
 
-When the additional markets come online, vaults route to whichever venue offers the best risk-adjusted spread at the moment of execution, subject to the constraints in the policy.
+The loop pairs an LST with SOL. Both sides move with the price of SOL, so a price move does not push the loan toward liquidation the way a SOL/USDC loan would. For the loop to unwind, an LST would have to depeg or a market would have to fail.
 
-## Loan-to-value and liquidation buffer
+The loop also keeps headroom on purpose. Part of that headroom funds the short's margin, and the rest is a buffer.
 
-The vault never operates at the maximum loan-to-value that Kamino permits. The policy bakes in a buffer between the working LTV and the liquidation threshold so that ordinary market moves do not trigger a forced unwind.
+## How the engine reacts
 
-The buffer is calibrated so that:
+| Event | Response |
+|-------|----------|
+| SOL borrow rate spikes | Safety triggers delever the loop to keep the spread in a safe range |
+| Loop APY approaches a critical level | Delever until the rate is positive again |
+| Short needs more margin in a rally | Borrow extra SOL from loop headroom and post it as margin |
+| Short profit is realised | Repay the extra SOL to the loop |
+| Liquidity leaves the market suddenly | Rebalance against the assumptions about available liquidity |
 
-- Routine volatility does not bring the position close to liquidation.
-- A large adverse move triggers a rebalance, not a liquidation.
-- The worker has time to act before any external party can step in.
-
-The exact buffer and rebalance thresholds are part of the policy extension and visible on chain once a vault is created. They are not published in aggregate because they would compose into the strategy signature.
-
-## Why the spread is usually positive
-
-Lending markets price borrow rates above supply rates. The vault is on both sides of the same market: it supplies a yield-bearing token (earning the supply rate plus the underlying staking yield) and borrows SOL (paying the SOL borrow rate). Across history, the supply yield plus the staking yield on the collateral has exceeded the borrow rate on SOL by a workable margin on Kamino.
-
-When the spread compresses or inverts, the worker reduces the size of the lending leg. When it widens, the worker can extend the leg back to its normal range. The decision is made within the policy bounds; nothing the worker does can move outside them.
-
-## Worker response to rate changes
-
-| Event | Worker response |
-|-------|-----------------|
-| Borrow rate rises above the configured threshold | Reduce the lending leg, increase the hedge weight |
-| Supply yield drops on Kamino | Reduce the leg until the spread is positive again |
-| LTV approaches the buffer line | Rebalance by repaying borrow before liquidation can be triggered |
-| LST discount widens | Pause new borrows, hold existing position, route the next vault to the other LST |
-
-Every response is bounded by the policy extension. There is no override path.
+On 8 July 2026, Kamino's SOL borrow rate hit a record high. The triggers cut the drag across the fleet by about 87 % and the vaults recovered within days. On 26 August, about $10 million of SOL left the Kamino market Thaler uses in under an hour, and the engine held the loops. See [Track record](/overview/track-record#stress-events).
 
 ## Next read
 
 <Columns cols={2}>
   <Card title="Perpetual markets" icon="scale" href="/strategies/perpetual-markets">
-    The hedge leg that pairs with the long SOL exposure introduced here.
+    The hedge the loop helps fund.
   </Card>
-  <Card title="Custody and policy" icon="key" href="/overview/custody-and-policy">
-    Where the LTV buffer, leverage cap, and rebalance thresholds live inside the policy
-    extension.
+  <Card title="Yield Upfront" icon="forward" href="/vault/yield-upfront">
+    Borrowing your expected yield from the loop's headroom.
   </Card>
 </Columns>

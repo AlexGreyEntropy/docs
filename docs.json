@@ -15,14 +15,17 @@
         "groups": [
           {
             "group": "Introduction",
-            "pages": ["index"]
+            "pages": [
+              "index"
+            ]
           },
           {
             "group": "Overview",
             "pages": [
               "overview/what-is-thaler",
               "overview/architecture",
-              "overview/custody-and-policy"
+              "overview/custody-and-policy",
+              "overview/track-record"
             ]
           },
           {
@@ -39,6 +42,7 @@
             "pages": [
               "vault/create",
               "vault/claim",
+              "vault/yield-upfront",
               "vault/close",
               "vault/fees"
             ]
@@ -48,12 +52,16 @@
             "pages": [
               "security/principal-protection",
               "security/yield-floor",
+              "security/incident-response",
               "security/risk-disclosure"
             ]
           },
           {
             "group": "Help",
-            "pages": ["faq"]
+            "pages": [
+              "glossary",
+              "faq"
+            ]
           }
         ]
       }
@@ -67,8 +75,13 @@
         },
         {
           "anchor": "X / Twitter",
-          "href": "https://twitter.com/ThalerFinance",
-          "icon": "twitter"
+          "href": "https://x.com/ThalerFinance",
+          "icon": "x-twitter"
+        },
+        {
+          "anchor": "Discord",
+          "href": "https://discord.gg/m3GdTFc4ru",
+          "icon": "discord"
         }
       ]
     }
@@ -92,7 +105,8 @@
   },
   "footer": {
     "socials": {
-      "x": "https://twitter.com/ThalerFinance",
+      "x": "https://x.com/ThalerFinance",
+      "discord": "https://discord.gg/m3GdTFc4ru",
       "github": "https://github.com/Thaler-Foundation"
     }
   }

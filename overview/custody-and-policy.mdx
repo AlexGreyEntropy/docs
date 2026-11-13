@@ -1,85 +1,89 @@
 ---
 title: "Custody and policy"
-description: "Who holds the keys, who can sign on the vault's behalf, and why the rules cannot change after signing. Verifiable on chain in two minutes."
-keywords: ["self custody", "Squads", "policy extension", "smart account"]
+description: "Who holds the keys, who can sign for a vault, and how custody changes after the audit. Today: an isolated Privy agentic wallet. Next: a Squads smart account with immutable on-chain policies."
+keywords: ["non-custodial", "Privy", "agentic wallet", "authorization key", "Squads", "smart account", "policy"]
 ---
 
-## Self-custodial by construction
+import { Term } from "/snippets/term.mdx";
 
-A Thaler vault is a Squads smart account. The user is a co-signer on that account from the moment it is created. The protocol cannot move funds out of a vault without the policy explicitly allowing it, and cannot bypass the policy at all.
+## Two stages
 
-This differs from a managed product, where a custodian holds the keys and the user holds a claim against the custodian. In Thaler the user holds the keys; the protocol holds the rules.
+Custody at Thaler moves in two stages. The strategy, the risk engine and the vault experience are the same in both. What changes is where the rules are enforced.
+
+| | Private beta (today) | After the audit |
+|-|----------------------|-----------------|
+| Vault wallet | Privy agentic wallet, one per vault | Squads smart account, one per vault |
+| Who can sign | The vault's worker, through a scoped authorization key tied to your embedded wallet | The vault's worker, only for instructions the on-chain policy allows |
+| Your private key | Never exposed to the worker | Never exposed to the worker |
+| Where the policy lives | Fixed at creation, checked when an action is signed | Immutable, checked on chain by Solana |
+| Pooling | None, every vault is isolated | None, every vault is isolated |
+
+## Today: agentic wallets
+
+<Term
+  word="agentic wallet"
+  part="noun"
+  phonetic="ay · jen · tik · wol · it"
+  example="Each beta vault is its own agentic wallet."
+>
+  The Privy wallet that holds a vault during the private beta. It can only sign the actions its policy allows, using an authorization key tied to your account.
+</Term>
+
+During the private beta, each vault is a Privy agentic wallet. The engine acts on it through an authorization key instead of your raw wallet private key. The authorization key is tied to your embedded wallet, and it is scoped to the actions the vault's policy allows.
+
+This keeps three things true:
+
+1. Your deposit sits in a wallet dedicated to your vault, not in a shared pool.
+2. The engine can run the strategy without ever seeing your private key.
+3. Settlement goes to your wallet. There is no path in the policy that sends a payout anywhere else.
+
+## After the audit: Squads smart accounts
+
+<Term
+  word="smart account"
+  part="noun"
+  phonetic="smart · uh · kownt"
+  example="After the audit, vaults move to Squads smart accounts."
+>
+  A Squads on-chain account whose rules are enforced by Solana itself. Thaler vaults move to smart accounts with immutable on-chain policies once the audit is complete.
+</Term>
+
+Once the audit is done, vaults move to Squads smart accounts with immutable policies on chain. The policy is signed once at creation and cannot be changed afterwards, not by you, not by Thaler, and not under market stress.
+
+If a malicious actor builds a transaction that looks like a normal strategy step but adds one extra instruction, the on-chain policy refuses it.
 
 ## What the policy controls
 
-The Squads policy extension binds the vault's behaviour. It enumerates every parameter the smart account will enforce.
+| Field | What it fixes |
+|-------|---------------|
+| Allowed assets | SOL, the supported liquid staking tokens, and USDC only as the settlement currency of hedge profits and funding |
+| Allowed venues | The supported staking providers, Kamino and Jupiter Lend for lending, Pacifica, Phoenix and Bulk for the hedge |
+| Risk profile | The leverage and sizing limits of the profile you picked |
+| Yield cycle | Auto-compound or auto-claim every 4 weeks, and auto-repay after Yield Upfront |
+| Closing rules | Lock period, order of unwind, and your wallet as the only payout address |
 
-| Field | Constraint |
-|-------|------------|
-| Allowed assets | SOL, jitoSOL, mSOL, USDC (USDC only enters via the deposit swap; never as collateral) |
-| Allowed venues | Kamino for lending, Jito or Marinade for staking, Hyperliquid or Pacifica for the hedge |
-| Leverage cap | Maximum borrow ratio for the lending leg, well below Kamino's liquidation threshold |
-| Claim cadence | 24-hour cooldown between yield claims |
-| Closure procedure | Order of operations on close, payout destination, penalty schedule |
+Any action outside this list is refused.
 
-Any instruction that targets an asset, venue, or operation outside this enumeration is rejected at the smart-account level.
+## Isolation
 
-## Immutability
+Thaler does not pool deposits. Think of it as a private car through DeFi rather than a seat on a shared bus: your vault stops at Kamino, the perpetual venue and the staking provider on its own route. If one vault is ever exploited, every other vault is unaffected.
 
-The policy extension is signed once and cannot be amended. The value of a policy comes from its predictability. A policy that can be modified after signing offers no stronger guarantee than an off-chain agreement.
+## Comparison with pooled vaults
 
-Three consequences follow from immutability:
-
-1. The user can verify the policy once and rely on it for the vault's lifetime.
-2. Auditors can compare the deployed program to the signed policy without tracking ongoing amendments.
-3. The protocol cannot change the rules under stress, during a drawdown, or after a market move.
-
-If the protocol updates the rule set, it deploys a new policy version. Existing vaults continue under the policy they signed. Users who want the new version close the existing vault and open a new one.
-
-## Recovery and continuity
-
-The Squads smart account is independent of any single party. The user retains a co-signer key. If the protocol's worker or agent wallet becomes unreachable, the user can still execute the close procedure that the policy defines.
-
-The deposit and any accrued yield are held by the smart account, not by the protocol. There is no path inside the policy that lets the worker route the payout elsewhere.
-
-## Verifying a vault on chain
-
-<Steps>
-  <Step title="Locate the vault address">
-    The Squads smart account address appears under the vault number on the My Vaults screen.
-  </Step>
-  <Step title="Open a block explorer">
-    Paste the smart account address into [Solscan](https://solscan.io) or
-    [Solana Explorer](https://explorer.solana.com).
-  </Step>
-  <Step title="Read the policy extension">
-    The extension is attached to the Squads multisig. It lists the allowed assets, the allowed
-    venues, the leverage cap, the claim cadence, and the closure procedure in plain on-chain
-    data.
-  </Step>
-  <Step title="Cross-check against the strategy summary">
-    The strategy summary shown in the Thaler app must match the on-chain rules exactly. Any
-    discrepancy is a signal not to deposit.
-  </Step>
-</Steps>
-
-## Comparison with managed products
-
-| Property | Managed product | Thaler vault |
-|----------|-----------------|--------------|
-| Who holds the keys | Custodian | User and protocol (multisig) |
-| User holds | A claim against the custodian | A co-signer key to the smart account |
-| Rule changes | At the custodian's discretion | Immutable once signed |
-| Recovery if the operator disappears | Bankruptcy proceedings | User can still operate the smart account |
-| On-chain verifiability | Limited or none | Full |
+| Property | Pooled vault | Thaler vault |
+|----------|--------------|--------------|
+| Who shares your risk | Every depositor | No one |
+| Strategy disclosure | Often private | Legs, venues and rules published |
+| Effect of one exploit | Everyone affected | One vault affected |
+| Rule changes | At the curator's discretion | Fixed at creation |
 
 ## Next read
 
 <Columns cols={2}>
-  <Card title="Strategies" icon="line-chart" href="/strategies/index">
-    The three pillars the policy authorises and how they earn together.
+  <Card title="Strategies" icon="chart-line" href="/strategies/index">
+    The three legs the policy allows.
   </Card>
   <Card title="Risk disclosure" icon="triangle-exclamation" href="/security/risk-disclosure">
-    The residual risks that no policy can fully eliminate.
+    The risks no policy can remove.
   </Card>
 </Columns>

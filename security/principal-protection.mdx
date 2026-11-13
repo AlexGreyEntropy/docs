@@ -1,97 +1,69 @@
 ---
-title: "Principal protection"
-description: "How Thaler protects the deposit, what protection covers, and how to verify the reserve that backs the commitment."
-keywords: ["principal protection", "reserve", "Squads policy", "deposit safety"]
+title: "Principal safety"
+description: "How a Thaler vault protects your deposit: the hedge, isolation, policy limits and automatic safety triggers. Plus what is not covered, and where the planned reserve stands."
+keywords: ["principal", "deposit safety", "hedge", "isolation", "safety triggers", "reserve"]
 ---
 
-## Commitment
+import { Term } from "/snippets/term.mdx";
 
-The deposit principal sent to a Thaler vault is protected from loss caused by ordinary market variance. Specifically, the protocol commits to return at least the deposit amount, in SOL, on a normal close.
+## What protects the deposit
 
-"Ordinary market variance" includes:
+Four layers work together to keep your principal intact through ordinary market moves.
 
-- Adverse moves in the price of SOL during the holding period.
-- Funding-rate flips on the perpetual hedge that would otherwise erode the position.
-- Borrow-rate spikes that compress the lending spread to zero or briefly invert it.
-- Short-term liquidation pressure inside the policy buffer.
+| Layer | What it does |
+|-------|--------------|
+| The hedge | The short perpetual is sized against your deposit, so SOL's price does not on its own change its value |
+| Isolation | Your vault holds only your funds. A problem in another vault cannot reach yours |
+| The policy | The vault can only use approved assets and venues, within its risk profile's limits |
+| Safety triggers | The risk engine acts automatically before a leg nears liquidation |
 
-## Mechanism
+<Term
+  word="safety trigger"
+  part="noun"
+  phonetic="sayf · tee · trig · er"
+  example="A safety trigger delevered the loop when borrow rates spiked."
+>
+  An automatic rule that acts when a strategy leg nears a risk limit, such as reducing leverage or adding margin, with no human in the loop.
+</Term>
 
-Two mechanisms operate in series to deliver the commitment.
+## How the layers have held
 
-<Steps>
-  <Step title="The immutable policy">
-    The Squads policy extension constrains the strategy so that the worker cannot put the
-    deposit into a position outside the protocol's risk budget. The leverage cap, the
-    loan-to-value buffer, the venue allowlist, and the rebalance rules are all encoded in the
-    policy. Nothing the worker emits can take the position past those bounds.
-  </Step>
-  <Step title="The protocol reserve">
-    Thaler maintains a protocol reserve denominated in SOL. The reserve sits outside any
-    individual vault and is sized to absorb residual variance across the active vault set.
-    When a vault produces less than the deposit at close, the reserve tops the payout back to
-    the deposit amount.
-  </Step>
-</Steps>
+| Event | Outcome |
+|-------|---------|
+| SOL rallies from $65 to $84 and from $74 to $110 | Shorts held, no liquidations |
+| Record SOL borrow rate on Kamino, July 2026 | Drag cut by about 87 %, vaults recovered within days |
+| $10M liquidity leaving Kamino in under an hour, August 2026 | Loops held, no security issues |
+| Railway security incident, October 2026 | Vault actions paused, keys rotated, every position left in place |
 
-The policy is designed to prevent excursions large enough to consume the reserve under ordinary conditions. The reserve covers the tail where the policy alone is not sufficient.
+Details are on [Track record](/overview/track-record#stress-events) and [Incident response](/security/incident-response).
 
-## What protection does not cover
+## The reserve
 
-| Scenario | Why it is excluded |
-|----------|--------------------|
-| Smart-contract failure of a third-party venue | The protocol cannot underwrite the security of Kamino, the perpetual exchanges, or the liquid staking providers |
-| Loss of user keys | The protocol cannot recover a wallet the user no longer controls |
-| User action outside the protocol | Anything signed by the user with a malicious external application is outside scope |
-| Closure inside the penalty schedule | The penalty is part of the contract the user accepts; closing after day 96 has no penalty and full protection applies |
+<Warning>
+  A public on-chain reserve to back the deposit and the structural floor is being designed.
+  It is not live. Until it is, Thaler does not guarantee your principal or a minimum return.
+</Warning>
 
-The excluded cases are described in detail under [Risk disclosure](/security/risk-disclosure).
+The planned reserve sits outside every individual vault. It is meant to cover the gap when a vault's result on a normal close falls below its deposit or the structural floor. Its sizing is being derived from more than 200,000 Monte Carlo iterations and the live record of the vaults. It will be added to these docs, with its address, once it ships.
 
-## Verifying the protection
+## What is not covered
 
-<Steps>
-  <Step title="Find the vault address">
-    The Squads smart account address appears under the vault number on the My Vaults screen.
-  </Step>
-  <Step title="Open a block explorer">
-    Paste the address into [Solscan](https://solscan.io) or
-    [Solana Explorer](https://explorer.solana.com).
-  </Step>
-  <Step title="Read the policy extension">
-    The policy lists the allowed programs, the leverage cap, the rebalance rules, and the
-    closure procedure. The on-chain policy and the strategy summary in the app must agree
-    exactly.
-  </Step>
-  <Step title="Locate the reserve">
-    The protocol reserve is a dedicated public Squads vault. Its address is available on
-    request via `audit@thaler.finance`. Both inflow and outflow are visible to anyone with a
-    block explorer.
-  </Step>
-</Steps>
+| Scenario | Why |
+|----------|-----|
+| Failure or exploit of a third-party protocol | Thaler cannot underwrite Kamino, Jupiter, the perpetual venues or the staking providers |
+| Severe LST depeg | The lending loop depends on the LST holding its value against SOL |
+| Loss of your own keys or account | Thaler cannot recover access it never had |
+| Anything you sign outside Thaler | Outside the vault's policy |
 
-## Reserve sizing methodology
-
-The reserve is sized against the worst observed annual outcome in the V12 walk-forward backtest across the supported venues. The protocol keeps a margin above the historical worst case so that an outlier year cannot exhaust the reserve.
-
-The reserve grows with capacity. As more vaults open, additional capital is allocated to the reserve so the per-vault cover stays at least as conservative as the day-one ratio. The protocol publishes the reserve size and the vault count it backs in the analytics endpoints.
-
-## Comparison with alternative postures
-
-| Posture | What is fixed | What is variable | Where Thaler sits |
-|---------|----------------|------------------|--------------------|
-| Floating yield only | None | Yield and principal | Most yield protocols |
-| Capped fixed yield | Yield | None (deposit anchored) | Conservative structured products |
-| Floor and floating upside | Yield floor and principal | Realised yield above floor | Thaler |
-
-Thaler preserves the variable upside the strategy actually produces and anchors the principal plus a per-tier floor. The trade-off is built into the reserve sizing and the service fee.
+See [Risk disclosure](/security/risk-disclosure).
 
 ## Next read
 
 <Columns cols={2}>
-  <Card title="Yield floor" icon="shield-check" href="/security/yield-floor">
-    The minimum return commitment that sits on top of principal protection.
+  <Card title="Structural floor" icon="shield-check" href="/security/yield-floor">
+    What the strategy is designed to earn in any market.
   </Card>
   <Card title="Risk disclosure" icon="triangle-exclamation" href="/security/risk-disclosure">
-    The residual risks no on-chain policy can fully eliminate.
+    What can still go wrong.
   </Card>
 </Columns>

@@ -1,0 +1,287 @@
+---
+title: "Glossary"
+description: "The words Thaler uses, defined in plain language. One entry per term, with an example of how it is used."
+keywords: ["glossary", "definitions", "auto-claim", "auto-compound", "Yield Upfront", "delta neutral"]
+---
+
+import { Term } from "/snippets/term.mdx";
+
+Each entry gives the term, how to say it, what it means inside Thaler, and an example sentence. Entries are grouped by where you meet them.
+
+## Vaults
+
+<Term
+  id="vault"
+  word="vault"
+  part="noun"
+  phonetic="vawlt"
+  example="I opened a Balanced vault with 10 SOL."
+>
+  Your own isolated account that holds your deposit and runs one Thaler strategy on it. No other user's funds share it.
+</Term>
+
+<Term
+  id="thaler-one"
+  word="Thaler One"
+  part="proper noun"
+  phonetic="tah · ler · wun"
+  example="Every vault today runs Thaler One."
+>
+  The first Thaler strategy family. It earns from liquid staking, a lending loop and a short perpetual hedge, in SOL.
+</Term>
+
+<Term
+  id="risk-profile"
+  word="risk profile"
+  part="noun"
+  phonetic="risk · proh · fyle"
+  example="I picked the Safe risk profile for my first vault."
+>
+  The setting you choose at creation, from Safe to YOLO, that decides how hard the strategy leans on each yield source. It is fixed for the life of the vault.
+</Term>
+
+<Term
+  id="deposit-band"
+  word="deposit band"
+  part="noun"
+  phonetic="dih · poz · it · band"
+  example="The deposit band for Optimistic starts at 11 SOL."
+>
+  The minimum and maximum SOL a vault of a given risk profile accepts.
+</Term>
+
+<Term
+  id="lock-period"
+  word="lock period"
+  part="noun"
+  phonetic="lok · peer · ee · ud"
+  example="After the four-week lock period, I closed the vault and got my SOL back."
+>
+  The four weeks after creation during which a vault cannot be closed. It gives the strategy time to cover its own setup costs.
+</Term>
+
+<Term
+  id="settlement"
+  word="settlement"
+  part="noun"
+  phonetic="set · ul · ment"
+  example="The settlement landed in my wallet in one transaction."
+>
+  The moment funds move from a vault to your wallet. Settlement is full or nothing: either every step completes or none does.
+</Term>
+
+## Yield
+
+<Term
+  id="auto-compound"
+  word="auto-compound"
+  part="noun"
+  phonetic="aw · toh · kom · pownd"
+  example="I left auto-compound on and let my earnings do the work."
+>
+  A vault setting that adds your earnings back in every 4 weeks, so they start earning too. On by default. Switch it off to get paid out instead.
+</Term>
+
+<Term
+  id="auto-claim"
+  word="auto-claim"
+  part="noun"
+  phonetic="aw · toh · klaym"
+  example="With auto-claim enabled, yield is paid out without manual collection."
+>
+  A vault feature that automatically collects earned yield at regular intervals and pays it out to the holder, with no action required.
+</Term>
+
+<Term
+  id="yield-upfront"
+  word="Yield Upfront"
+  part="noun"
+  phonetic="yeeld · up · frunt"
+  example="I used Yield Upfront to take four months of yield on day one."
+>
+  A vault option that pays you up to 6 months of expected net yield on the day you open the vault. The vault's own yield repays it over time.
+</Term>
+
+<Term
+  id="auto-repay"
+  word="auto-repay"
+  part="noun"
+  phonetic="aw · toh · ree · pay"
+  example="My vault is on auto-repay until the upfront claim is settled."
+>
+  The mode a vault switches to after a Yield Upfront claim. Every yield cycle goes to settling the claim instead of to you, until it is paid off and the vault unlocks.
+</Term>
+
+<Term
+  id="structural-floor"
+  word="structural floor"
+  part="noun"
+  phonetic="struk · cher · ul · flor"
+  example="Even in a flat month, the structural floor kept the vault earning."
+>
+  The return the strategy is designed to hold in any market, near 7 to 8 % a year, from its steadiest sources. It is a design target, not a guarantee.
+</Term>
+
+<Term
+  id="service-fee"
+  word="service fee"
+  part="noun"
+  phonetic="sur · vis · fee"
+  example="The service fee only came out of my yield, never my deposit."
+>
+  The 11 % share of generated yield that Thaler keeps to run the engine. It is never taken from your deposit.
+</Term>
+
+<Term
+  id="current-apr"
+  word="current APR"
+  part="noun"
+  phonetic="kur · ent · ay · pee · ar"
+  example="The dashboard showed a current APR of 15.45 %."
+>
+  The annualised rate the live vaults are earning right now, measured against TVL. A snapshot, not a forecast.
+</Term>
+
+<Term
+  id="tvl"
+  word="TVL"
+  part="noun"
+  phonetic="tee · vee · el"
+  example="TVL reached 264 SOL in November."
+>
+  Total value locked. The SOL currently deposited across all live vaults.
+</Term>
+
+## Strategy
+
+<Term
+  id="delta-neutral"
+  word="delta-neutral"
+  part="adjective"
+  phonetic="del · tuh · noo · trul"
+  example="Because the vault is delta-neutral, a falling SOL price does not shrink my deposit."
+>
+  Hedged so that a move in the price of SOL, up or down, does not on its own change the value of your deposit.
+</Term>
+
+<Term
+  id="lst"
+  word="liquid staking token"
+  part="noun"
+  phonetic="lik · wid · stay · king · toh · ken"
+  example="The vault holds a liquid staking token that keeps earning staking rewards."
+>
+  A token that stands for staked SOL plus its rewards, and that can still be moved and used. Also called an LST. jitoSOL and mSOL are two examples.
+</Term>
+
+<Term
+  id="lending-loop"
+  word="lending loop"
+  part="noun"
+  phonetic="len · ding · loop"
+  example="The lending loop on Kamino Multiply earned the spread while SOL went sideways."
+>
+  Supplying an LST as collateral, borrowing SOL against it, and staking that SOL again, to earn the gap between staking yield and borrow cost.
+</Term>
+
+<Term
+  id="perpetual-hedge"
+  word="perpetual hedge"
+  part="noun"
+  phonetic="per · pech · oo · ul · hej"
+  example="When SOL dropped, the perpetual hedge booked the move as profit."
+>
+  A short SOL perpetual position sized against your deposit. It cancels price exposure and earns funding and downside moves.
+</Term>
+
+<Term
+  id="funding-rate"
+  word="funding rate"
+  part="noun"
+  phonetic="fun · ding · rayt"
+  example="Longs paid the funding rate to shorts for most of the month."
+>
+  The payment that longs and shorts exchange on a perpetual to keep its price close to spot. When it is positive, the short side gets paid.
+</Term>
+
+<Term
+  id="pulse-router"
+  word="Pulse Router"
+  part="proper noun"
+  phonetic="puls · roo · ter"
+  example="Pulse Router moved the hedge to the venue with better funding."
+>
+  The part of the Thaler engine that compares supported staking tokens, lending markets and perpetual venues, and routes each vault to the best one at the time.
+</Term>
+
+<Term
+  id="rebalance"
+  word="rebalance"
+  part="verb"
+  phonetic="ree · bal · uns"
+  example="The engine rebalanced the hedge after SOL fell 6 %."
+>
+  To bring a leg of the strategy back to its target size after the market moves it away.
+</Term>
+
+<Term
+  id="safety-trigger"
+  word="safety trigger"
+  part="noun"
+  phonetic="sayf · tee · trig · er"
+  example="A safety trigger delevered the loop when borrow rates spiked."
+>
+  An automatic rule that acts when a strategy leg nears a risk limit, such as reducing leverage or adding margin, with no human in the loop.
+</Term>
+
+<Term
+  id="ltv"
+  word="LTV"
+  part="noun"
+  phonetic="el · tee · vee"
+  example="Compounding lowered the loop's LTV and widened its headroom."
+>
+  Loan to value. How much is borrowed compared with the collateral behind it. The lower it is, the further the position is from liquidation.
+</Term>
+
+## Custody
+
+<Term
+  id="agentic-wallet"
+  word="agentic wallet"
+  part="noun"
+  phonetic="ay · jen · tik · wol · it"
+  example="Each beta vault is its own agentic wallet."
+>
+  The Privy wallet that holds a vault during the private beta. It can only sign the actions its policy allows, using an authorization key tied to your account.
+</Term>
+
+<Term
+  id="authorization-key"
+  word="authorization key"
+  part="noun"
+  phonetic="aw · ther · eye · zay · shun · kee"
+  example="The engine signs with an authorization key, never with my wallet's private key."
+>
+  A scoped key that lets the strategy engine act on a vault without ever exposing your raw wallet private key.
+</Term>
+
+<Term
+  id="policy"
+  word="policy"
+  part="noun"
+  phonetic="pol · ih · see"
+  example="The policy only lets the vault talk to approved venues."
+>
+  The fixed list of actions, assets and venues a vault is allowed to use. Anything outside it is refused.
+</Term>
+
+<Term
+  id="smart-account"
+  word="smart account"
+  part="noun"
+  phonetic="smart · uh · kownt"
+  example="After the audit, vaults move to Squads smart accounts."
+>
+  A Squads on-chain account whose rules are enforced by Solana itself. Thaler vaults move to smart accounts with immutable on-chain policies once the audit is complete.
+</Term>
