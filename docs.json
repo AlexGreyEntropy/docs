@@ -7,60 +7,33 @@
     "light": "#ffffff",
     "dark": "#000000"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/favicon.png",
   "navigation": {
     "tabs": [
       {
         "tab": "Documentation",
         "groups": [
           {
-            "group": "Introduction",
+            "group": "Get Started",
             "pages": [
-              "index"
+              "index",
+              "how-it-works"
             ]
           },
           {
-            "group": "Overview",
+            "group": "Your Vault",
             "pages": [
-              "overview/what-is-thaler",
-              "overview/architecture",
-              "overview/custody-and-policy",
-              "overview/track-record"
+              "create-vault",
+              "yield",
+              "yield-upfront",
+              "closing",
+              "fees"
             ]
           },
           {
-            "group": "Strategies",
+            "group": "Safety",
             "pages": [
-              "strategies/index",
-              "strategies/liquid-staking",
-              "strategies/lending-markets",
-              "strategies/perpetual-markets"
-            ]
-          },
-          {
-            "group": "Vault lifecycle",
-            "pages": [
-              "vault/create",
-              "vault/claim",
-              "vault/yield-upfront",
-              "vault/close",
-              "vault/fees"
-            ]
-          },
-          {
-            "group": "Security",
-            "pages": [
-              "security/principal-protection",
-              "security/yield-floor",
-              "security/incident-response",
-              "security/risk-disclosure"
-            ]
-          },
-          {
-            "group": "Help",
-            "pages": [
-              "glossary",
-              "faq"
+              "safety"
             ]
           }
         ]
@@ -70,7 +43,7 @@
       "anchors": [
         {
           "anchor": "App",
-          "href": "https://thaler.finance",
+          "href": "https://app.thaler.finance",
           "icon": "arrow-up-right-from-square"
         },
         {
@@ -100,7 +73,7 @@
     "primary": {
       "type": "button",
       "label": "Open app",
-      "href": "https://thaler.finance"
+      "href": "https://app.thaler.finance"
     }
   },
   "footer": {

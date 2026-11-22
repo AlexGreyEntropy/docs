@@ -1,0 +1,31 @@
+---
+title: "Fees"
+description: "What Thaler charges, and when."
+---
+
+## Fees
+
+| Fee | Amount | When |
+|-----|--------|------|
+| <span className="term term-service-fee" tabIndex={0}>Service fee</span> | 11 % of your yield | Every 4 weeks, and on any yield paid out when you close |
+| <span className="term term-creation-reserve" tabIndex={0}>Creation reserve</span> | 0.06 SOL | When you open a vault. 0.03 SOL comes back when you close |
+
+There is no deposit fee, no management fee and no closing penalty. The service fee only comes out of yield, never your deposit.
+
+The 0.03 SOL that is kept covers your vault's setup and its network fees. You do not pay network fees yourself.
+
+## Example
+
+You deposit 10 SOL and your vault earns 1.3 SOL in a year.
+
+| Item | SOL |
+|------|-----|
+| Yield | 1.300 |
+| Service fee (11 %) | 0.143 |
+| You keep | 1.157 |
+
+Returns shown in the app are already after the fee.
+
+## Yield Upfront
+
+If you take [Yield Upfront](/yield-upfront), the 11 % fee is added to the amount when you take it, and the borrowed SOL pays the lending market's borrow interest until it is repaid.

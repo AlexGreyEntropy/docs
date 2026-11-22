@@ -15,29 +15,32 @@ Mintlify watches the local files and rebuilds on save. The dev server runs on `l
 
 | Path | What lives here |
 |------|------------------|
-| `index.mdx` | Landing page with live numbers |
-| `overview/` | What Thaler is, architecture, custody and policy, track record |
-| `strategies/` | The three legs and the six risk profiles |
-| `vault/` | Create, yield and claims, Yield Upfront, close, fees |
-| `security/` | Principal safety, structural floor, incident response, risk disclosure |
-| `glossary.mdx` | Every Thaler term, in dictionary format |
-| `faq.mdx` | Frequently asked questions |
-| `images/` | Strategy diagrams and update graphics |
+| `index.mdx` | What Thaler is, at a glance |
+| `how-it-works.mdx` | Staking, lending loop, hedge, and how it earns in each market |
+| `create-vault.mdx` | Sign in, fund, pick a risk profile, open a vault |
+| `yield.mdx` | Auto-claim, auto-compound, claiming early |
+| `yield-upfront.mdx` | Yield Upfront |
+| `closing.mdx` | Closing a vault |
+| `fees.mdx` | Fees |
+| `safety.mdx` | Custody, audit, risks |
 | `docs.json` | Site configuration, navigation and theme |
-| `logo/` | Light and dark Thaler wordmark |
+| `glossary/` | Definition card images shown when you hover a term |
+| `style.css` | Hover card styling, one line per term |
+| `logo/` | Light and dark Thaler wordmark, from the landing site |
 
 ## Editing rules
 
-- Keep it simple. Plain markdown only: headings, short paragraphs, lists, tables, images. No blockquotes, no raw HTML or JSX components, no diagrams.
+- Keep it simple. Plain markdown only: headings, short paragraphs, lists, tables. No images, blockquotes, raw HTML, JSX components or diagrams. The one exception is glossary terms, below.
+- Write for someone who has never used DeFi. Wrap the first use of any new term on a page in `<span className="term term-<slug>" tabIndex={0}>term</span>`. Hovering (or tapping) it shows that term's definition card from `glossary/<slug>.webp`.
+- To add a term: make its card in thaler-drafts at `/update` (Definition style, Rock background), export it as `glossary/<slug>.webp`, and add a `.term-<slug>::after` line to `style.css`.
 - Write in second-person voice ("you", "your vault").
 - Active voice, direct language.
-- Sentence case for headings.
+- Title case for page titles and sidebar groups ("Create a Vault"). Sentence case for headings inside a page.
 - No buzzwords, no marketing copy, no AI terminology.
 - Do not publish strategy parameters, position sizes or operational thresholds.
 - All code blocks need a language tag.
 - All internal links use root-relative paths without file extensions: `/strategies/index`.
-- Define terms in dictionary format, in plain markdown: `### term`, then `*(noun)* · *pho · net · ic*`, a one-line definition, and `*e.g.: ... **term** ...*`. Add every term to `glossary.mdx`.
-- No live numbers (TVL, APR, vault counts, volume). They go stale. Link to the app dashboard instead. Fixed history, like closed rounds and past events, is fine.
+- No live numbers (TVL, APR, vault counts, volume). They go stale. Link to the app at `app.thaler.finance` instead. Fixed history, like closed rounds and past events, is fine.
 - Do not describe the structural floor or principal safety as guarantees until the on-chain reserve is live.
 
 ## Publishing

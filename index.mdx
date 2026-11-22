@@ -1,39 +1,47 @@
 ---
 title: "Thaler Finance"
-description: "Yield vaults on Solana that earn from market movement, not price direction."
+description: "Earn yield on your SOL, whether SOL goes up or down."
 ---
-
-![Thaler](/images/hero.png)
 
 ## What is Thaler
 
-Thaler is a yield protocol on Solana. You deposit SOL into your own vault. The vault earns yield whether SOL goes up or down, and pays it in SOL.
+Thaler is a <span className="term term-yield" tabIndex={0}>yield</span> app on Solana. You put <span className="term term-sol" tabIndex={0}>SOL</span> into your own <span className="term term-vault" tabIndex={0}>vault</span>, and the vault earns more SOL for you. It earns whether the price of SOL goes up or down.
 
-## How it works
+Our first strategy is called **<span className="term term-thaler-one" tabIndex={0}>Thaler One</span>**.
 
-Each vault runs three things at once:
+## Why it is different
 
-1. **Staking.** Your SOL is staked and earns staking rewards.
-2. **Lending.** The staked SOL is looped on a lending market to earn more.
-3. **Hedge.** A short position cancels out SOL's price moves, and earns when SOL falls.
+Most ways to earn on SOL only work well when the price holds or rises. When SOL falls, you lose more on the price than you earn in yield.
+
+Thaler adds a <span className="term term-hedge" tabIndex={0}>hedge</span> that cancels out SOL's price moves on your deposit. So your return comes from the yield, not from guessing where the price goes next. When SOL falls, the hedge actually earns more. Being hedged like this is called being <span className="term term-delta-neutral" tabIndex={0}>delta-neutral</span>.
 
 ## At a glance
 
 | Item | Detail |
 |------|--------|
-| Deposit | SOL |
-| Risk profiles | Six, from Safe to YOLO |
-| Target return | 8.2 % to 20 % a year |
-| Yield | Every 4 weeks, compounded or paid out |
-| Lock period | 4 weeks |
-| Fee | 11 % of your yield |
+| What you deposit | SOL |
+| What you earn | SOL |
+| Risk profiles | Safe, Conservative, Balanced |
+| Deposit | 6 to 1,111 SOL, depending on the profile |
+| Yield | Collected every 4 weeks |
+| Fee | 11 % of your yield, never your deposit |
+| Your money | Held in your own vault, never pooled with others |
 
-## Live stats
+## Where to use it
 
-See current TVL, vaults and APR in the [app](https://thaler.finance/dashboard).
+- On the web at [app.thaler.finance](https://app.thaler.finance).
+- On the Seeker dApp Store.
+
+For live numbers like total deposits and current returns, see the [app](https://app.thaler.finance).
 
 ## Private beta
 
-Thaler is live on Solana mainnet in private beta. Request access at [thaler.finance](https://thaler.finance).
+Thaler is live on Solana mainnet in private beta. Request access at [thaler.finance](https://thaler.finance). If you like, someone from the team can walk you through setup on a call.
 
-There is no Thaler token.
+## Start here
+
+1. [How it works](/how-it-works)
+2. [Create a vault](/create-vault)
+3. [Your yield](/yield)
+
+There is no Thaler token. If you see one, it is not us.
