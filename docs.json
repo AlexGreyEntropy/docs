@@ -7,53 +7,34 @@
     "light": "#ffffff",
     "dark": "#000000"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/favicon.png",
   "navigation": {
     "tabs": [
       {
         "tab": "Documentation",
         "groups": [
           {
-            "group": "Introduction",
-            "pages": ["index"]
-          },
-          {
-            "group": "Overview",
+            "group": "Get Started",
             "pages": [
-              "overview/what-is-thaler",
-              "overview/architecture",
-              "overview/custody-and-policy"
+              "index",
+              "how-it-works"
             ]
           },
           {
-            "group": "Strategies",
+            "group": "Your Vault",
             "pages": [
-              "strategies/index",
-              "strategies/liquid-staking",
-              "strategies/lending-markets",
-              "strategies/perpetual-markets"
+              "create-vault",
+              "yield",
+              "yield-upfront",
+              "closing",
+              "fees"
             ]
           },
           {
-            "group": "Vault lifecycle",
+            "group": "Safety",
             "pages": [
-              "vault/create",
-              "vault/claim",
-              "vault/close",
-              "vault/fees"
+              "safety"
             ]
-          },
-          {
-            "group": "Security",
-            "pages": [
-              "security/principal-protection",
-              "security/yield-floor",
-              "security/risk-disclosure"
-            ]
-          },
-          {
-            "group": "Help",
-            "pages": ["faq"]
           }
         ]
       }
@@ -62,13 +43,18 @@
       "anchors": [
         {
           "anchor": "App",
-          "href": "https://thaler.finance",
+          "href": "https://app.thaler.finance",
           "icon": "arrow-up-right-from-square"
         },
         {
           "anchor": "X / Twitter",
-          "href": "https://twitter.com/ThalerFinance",
-          "icon": "twitter"
+          "href": "https://x.com/ThalerFinance",
+          "icon": "x-twitter"
+        },
+        {
+          "anchor": "Discord",
+          "href": "https://discord.gg/m3GdTFc4ru",
+          "icon": "discord"
         }
       ]
     }
@@ -87,12 +73,13 @@
     "primary": {
       "type": "button",
       "label": "Open app",
-      "href": "https://thaler.finance"
+      "href": "https://app.thaler.finance"
     }
   },
   "footer": {
     "socials": {
-      "x": "https://twitter.com/ThalerFinance",
+      "x": "https://x.com/ThalerFinance",
+      "discord": "https://discord.gg/m3GdTFc4ru",
       "github": "https://github.com/Thaler-Foundation"
     }
   }

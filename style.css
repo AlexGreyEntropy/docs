@@ -1,0 +1,47 @@
+/* Glossary hover cards: hover or tap a dotted term to see its definition card from /glossary. */
+.term { position: relative; text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; outline: none; }
+.term::after { content: ""; display: none; position: absolute; left: 0; top: calc(100% + 8px); z-index: 50; width: min(560px, 90vw); aspect-ratio: 16 / 9; border-radius: 12px; background: #0a0a0a center / cover no-repeat; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35); pointer-events: none; }
+.term:hover::after, .term:focus::after { display: block; }
+/* Tables scroll sideways and would clip the card, so cards from table cells sit near the bottom of the screen. */
+table .term { position: static; }
+table .term::after { position: fixed; left: 50%; top: auto; bottom: 24px; transform: translateX(-50%); }
+@media (max-width: 640px) { .term { position: static; } .term::after, table .term::after { position: fixed; left: 16px; right: 16px; top: auto; bottom: 16px; width: auto; transform: none; } }
+
+.term-agentic-wallet::after { background-image: url("/glossary/agentic-wallet.webp"); }
+.term-audit::after { background-image: url("/glossary/audit.webp"); }
+.term-auto-claim::after { background-image: url("/glossary/auto-claim.webp"); }
+.term-auto-compound::after { background-image: url("/glossary/auto-compound.webp"); }
+.term-auto-repay::after { background-image: url("/glossary/auto-repay.webp"); }
+.term-borrow::after { background-image: url("/glossary/borrow.webp"); }
+.term-collateral::after { background-image: url("/glossary/collateral.webp"); }
+.term-creation-reserve::after { background-image: url("/glossary/creation-reserve.webp"); }
+.term-cycle::after { background-image: url("/glossary/cycle.webp"); }
+.term-dca::after { background-image: url("/glossary/dca.webp"); }
+.term-delta-neutral::after { background-image: url("/glossary/delta-neutral.webp"); }
+.term-funding-rate::after { background-image: url("/glossary/funding-rate.webp"); }
+.term-hedge::after { background-image: url("/glossary/hedge.webp"); }
+.term-lending-loop::after { background-image: url("/glossary/lending-loop.webp"); }
+.term-lending-market::after { background-image: url("/glossary/lending-market.webp"); }
+.term-leverage::after { background-image: url("/glossary/leverage.webp"); }
+.term-liquid-staking-token::after { background-image: url("/glossary/liquid-staking-token.webp"); }
+.term-liquidation::after { background-image: url("/glossary/liquidation.webp"); }
+.term-on-chain::after { background-image: url("/glossary/on-chain.webp"); }
+.term-perpetual-market::after { background-image: url("/glossary/perpetual-market.webp"); }
+.term-private-key::after { background-image: url("/glossary/private-key.webp"); }
+.term-pulse-router::after { background-image: url("/glossary/pulse-router.webp"); }
+.term-risk-engine::after { background-image: url("/glossary/risk-engine.webp"); }
+.term-risk-profile::after { background-image: url("/glossary/risk-profile.webp"); }
+.term-scalp::after { background-image: url("/glossary/scalp.webp"); }
+.term-service-fee::after { background-image: url("/glossary/service-fee.webp"); }
+.term-short::after { background-image: url("/glossary/short.webp"); }
+.term-smart-account::after { background-image: url("/glossary/smart-account.webp"); }
+.term-sol::after { background-image: url("/glossary/sol.webp"); }
+.term-staking::after { background-image: url("/glossary/staking.webp"); }
+.term-swap::after { background-image: url("/glossary/swap.webp"); }
+.term-thaler-one::after { background-image: url("/glossary/thaler-one.webp"); }
+.term-thaler-wallet::after { background-image: url("/glossary/thaler-wallet.webp"); }
+.term-usdc::after { background-image: url("/glossary/usdc.webp"); }
+.term-vault::after { background-image: url("/glossary/vault.webp"); }
+.term-wallet::after { background-image: url("/glossary/wallet.webp"); }
+.term-yield::after { background-image: url("/glossary/yield.webp"); }
+.term-yield-upfront::after { background-image: url("/glossary/yield-upfront.webp"); }

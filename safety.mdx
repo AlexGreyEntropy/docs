@@ -1,0 +1,51 @@
+---
+title: "Safety and Risks"
+description: "Who holds your SOL, and what can still go wrong."
+---
+
+## Your own vault
+
+Your SOL is never pooled with anyone else's. Every vault holds only its owner's funds. If one vault has a problem, no other vault is affected.
+
+## Who holds your SOL
+
+During the private beta, each vault is a Privy <span className="term term-agentic-wallet" tabIndex={0}>agentic wallet</span>.
+
+- Thaler runs the strategy with a limited key. It cannot see your private key.
+- The vault can only use approved tokens and markets.
+- Payouts can only go to your Thaler wallet.
+
+## Coming next
+
+| Step | Status |
+|------|--------|
+| Security <span className="term term-audit" tabIndex={0}>audit</span> by Adevar Labs and Accretion | Underway |
+| Move vaults to Squads <span className="term term-smart-account" tabIndex={0}>smart accounts</span>, with rules locked <span className="term term-on-chain" tabIndex={0}>on-chain</span> | After the audit |
+| A public on-chain reserve to back deposits | Planned |
+
+## If something looks wrong
+
+Safety comes first. If something might be wrong, Thaler pauses vault actions, fixes it and turns them back on. During a pause your positions stay in place and your SOL does not move.
+
+Updates are posted on [@ThalerFinance](https://x.com/ThalerFinance). Report security issues to [support@thaler.finance](mailto:support@thaler.finance).
+
+## Risks that remain
+
+Thaler reduces risk but cannot remove all of it.
+
+| Risk | What could happen |
+|------|-------------------|
+| Other apps | Kamino, Jupiter Lend, a perpetual market or a staking provider is hacked or fails |
+| Staking tokens | A staking token loses value against SOL |
+| Borrow costs | Borrowing costs more than staking earns for a long time |
+| Funding | Funding stays negative for a long time |
+| Fast rallies | A very sharp rise in SOL puts pressure on the hedge |
+| Beta custody | Vault rules are not yet locked on-chain |
+| Solana | Network outages delay actions |
+| Your access | You lose access to your email or Thaler wallet |
+
+## Not guaranteed
+
+Your deposit, any return, and past results are not guaranteed. This is not financial advice.
+
+The private beta is not open to residents of restricted countries.

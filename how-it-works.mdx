@@ -1,0 +1,71 @@
+---
+title: "How It Works"
+description: "Three parts working together in one vault."
+---
+
+## The short version
+
+Your vault does three things at once:
+
+1. **Stakes** your SOL so it earns <span className="term term-staking" tabIndex={0}>staking</span> rewards.
+2. **Loops** it on a <span className="term term-lending-market" tabIndex={0}>lending market</span> to earn more.
+3. **Hedges** it, so SOL's price does not change the value of your deposit.
+
+You do not manage any of this. The vault runs on its own, day and night.
+
+## 1. Staking
+
+Your SOL is turned into a <span className="term term-liquid-staking-token" tabIndex={0}>liquid staking token</span>. It earns staking rewards and can still be used by the rest of the strategy.
+
+Supported tokens: jitoSOL, mSOL, jupSOL, INF, bSOL, stkeSOL, hSOL, pSOL and lanternSOL.
+
+## 2. Lending loop
+
+The staking token goes into a <span className="term term-lending-loop" tabIndex={0}>lending loop</span>:
+
+1. The vault lends the staking token.
+2. It <span className="term term-borrow" tabIndex={0}>borrows</span> SOL against it.
+3. It stakes that SOL too.
+
+Now the vault earns staking rewards on a bigger amount. Both sides are SOL, so a change in SOL's price does not push the loan toward <span className="term term-liquidation" tabIndex={0}>liquidation</span>.
+
+Supported lending markets: Kamino and Jupiter Lend.
+
+## 3. Hedge
+
+The vault opens a <span className="term term-short" tabIndex={0}>short</span> on a <span className="term term-perpetual-market" tabIndex={0}>perpetual market</span>, the same size as your deposit. When SOL's price moves, the short moves the other way. Your deposit keeps its value.
+
+The short earns in two ways:
+
+- **<span className="term term-funding-rate" tabIndex={0}>Funding</span>.** Most of the time, traders betting on SOL going up pay the short side.
+- **Falling prices.** Each time SOL drops, the vault takes a small profit from the short, called a <span className="term term-scalp" tabIndex={0}>scalp</span>, and resets it at the lower price.
+
+Supported perpetual markets: Pacifica, Phoenix and Bulk.
+
+## How it earns in each market
+
+| Market | What happens | Rough return |
+|--------|--------------|--------------|
+| SOL goes up | The lending loop earns more and funding grows. The short loses, but the SOL <span className="term term-collateral" tabIndex={0}>collateral</span> backing it gains just as much, so it evens out. | About 12 to 13 % a year |
+| SOL goes down | The lending loop and funding earn a bit less. The short takes profit on every drop, and that profit buys back SOL at a lower price (<span className="term term-dca" tabIndex={0}>DCA</span>). | 20 % a year or more |
+
+These are rough guides, not promises. Returns change with the market.
+
+## Your return is counted in SOL
+
+Your deposit and your yield are both in SOL. If SOL's price rises, your SOL is also worth more in dollars.
+
+## Who makes the choices
+
+**<span className="term term-pulse-router" tabIndex={0}>Pulse Router</span>** picks the best staking token, lending market and perpetual market for your vault, based on what pays the most right now.
+
+**The <span className="term term-risk-engine" tabIndex={0}>risk engine</span>** watches every position and acts on its own:
+
+| When | It |
+|------|----|
+| Borrowing gets expensive | Borrows less |
+| SOL rises fast | Adds more SOL to back the short |
+| SOL falls | Takes profit on the short and resets it |
+| A position drifts | Rebalances it |
+
+Hedge profits are paid in <span className="term term-usdc" tabIndex={0}>USDC</span>. The vault <span className="term term-swap" tabIndex={0}>swaps</span> them back to SOL through Titan Exchange.
