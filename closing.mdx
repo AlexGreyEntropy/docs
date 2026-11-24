@@ -5,20 +5,49 @@ description: "Get your SOL back."
 
 ## When
 
-You can close your vault at any time. We recommend keeping it open for at least 4 weeks.
+You can close your vault at any time. Closing is free once your vault has had its first <span className="term term-auto-claim" tabIndex={0}>auto-claim</span>, at the end of its first 4-week cycle.
 
-Opening and closing a vault both cost a little to set up and unwind. A vault closed in the first days may not earn enough to cover that.
+## Early close penalty
+
+If you close before the first auto-claim, you pay a penalty. It starts at 3% and falls evenly to 0% over the 4 weeks.
+
+The 11% service fee comes out of your yield first. The penalty is then taken from the total: your deposit plus your yield after the fee.
+
+| You close after | Penalty |
+|-----------------|---------|
+| Day 0 | 3% |
+| 1 week | 2.25% |
+| 2 weeks | 1.5% |
+| 3 weeks | 0.75% |
+| First auto-claim | 0% |
+
+**Example.** You deposit 10 SOL and close after 2 weeks, when the vault has earned 0.1 SOL.
+
+| Item | SOL |
+|------|-----|
+| Yield | 0.100 |
+| Service fee (11%) | -0.011 |
+| Total (deposit plus yield after fee) | 10.089 |
+| Penalty (1.5% of total) | -0.151 |
+| You get back | 9.938 |
+
+You also get back 0.03 SOL of your creation reserve.
+
+Opening and closing a vault both cost a little to set up and unwind, and a vault closed in the first days does not earn enough to cover that.
 
 If you took [Yield Upfront](/yield-upfront), you can close once it is repaid.
 
 ## What you get back
 
 - Your deposit.
-- Any yield not yet paid out, minus the 11 % service fee.
+- Any yield not yet paid out, minus the 11% service fee.
+- Minus the early close penalty, if you close before the first auto-claim. It is taken from your deposit plus your yield after the 11% fee.
 - 0.03 SOL, half of your creation reserve.
 
 Everything is paid in SOL to your Thaler wallet.
 
 ## What happens when you close
 
-The vault closes the hedge, unwinds the lending loop, turns the staking token back into SOL and sends it to you. You can follow each step in the app. It takes a few minutes.
+The vault closes the hedge, unwinds the lending loop, turns the staking token back into SOL and sends it to you. You can follow each step in the app. It usually takes a few minutes.
+
+Some perpetual markets limit how fast money can leave them. Pacifica allows 50,000 USDC every 24 hours, and Phoenix pays out in a queue of 400 USDC parts. A large vault on one of these markets can take longer to close. This is why each vault holds at most 1,111 SOL.

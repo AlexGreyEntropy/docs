@@ -17,7 +17,7 @@ You do not manage any of this. The vault runs on its own, day and night.
 
 Your SOL is turned into a <span className="term term-liquid-staking-token" tabIndex={0}>liquid staking token</span>. It earns staking rewards and can still be used by the rest of the strategy.
 
-Supported tokens: jitoSOL, mSOL, jupSOL, INF, bSOL, stkeSOL, hSOL, pSOL and lanternSOL.
+Supported tokens: jitoSOL, mSOL, jupSOL, INF, bSOL, stkeSOL, hSOL, pSOL, lanternSOL, rkuSOL and StrongSOL.
 
 ## 2. Lending loop
 
@@ -40,20 +40,29 @@ The short earns in two ways:
 - **<span className="term term-funding-rate" tabIndex={0}>Funding</span>.** Most of the time, traders betting on SOL going up pay the short side.
 - **Falling prices.** Each time SOL drops, the vault takes a small profit from the short, called a <span className="term term-scalp" tabIndex={0}>scalp</span>, and resets it at the lower price.
 
-Supported perpetual markets: Pacifica, Phoenix and Bulk.
+Supported perpetual markets: Pacifica, Bulk, Phoenix and Bullet.
 
 ## How it earns in each market
 
 | Market | What happens | Rough return |
 |--------|--------------|--------------|
-| SOL goes up | The lending loop earns more and funding grows. The short loses, but the SOL <span className="term term-collateral" tabIndex={0}>collateral</span> backing it gains just as much, so it evens out. | About 12 to 13 % a year |
-| SOL goes down | The lending loop and funding earn a bit less. The short takes profit on every drop, and that profit buys back SOL at a lower price (<span className="term term-dca" tabIndex={0}>DCA</span>). | 20 % a year or more |
+| SOL goes up | The lending loop earns more and funding grows. The short loses, but the SOL <span className="term term-collateral" tabIndex={0}>collateral</span> backing it gains just as much, so it evens out. | About 12 to 13% a year |
+| SOL goes down | The lending loop and funding earn a bit less. The short takes profit on every drop, and that profit buys back SOL at a lower price (<span className="term term-dca" tabIndex={0}>DCA</span>). | 20% a year or more |
 
 These are rough guides, not promises. Returns change with the market.
 
 ## Your return is counted in SOL
 
-Your deposit and your yield are both in SOL. If SOL's price rises, your SOL is also worth more in dollars.
+Your yield is paid in SOL. The hedge keeps the dollar value of your deposit steady.
+
+- **If SOL falls,** the short earns what your SOL loses in dollars.
+- **If SOL rises,** the short shows a loss, but the SOL collateral backing it grows by the same amount. The higher SOL goes, the less SOL it takes to close the short.
+
+On top of that, the lending loop and funding keep earning, and the SOL bought back on earlier drops acts as a buffer until you claim it.
+
+## Yield floor
+
+The strategy has a guaranteed yield floor: a minimum yield your vault earns in any market, even when the market is flat. The floor is set on purpose about 3 times lower than what the strategy has earned in backtests and in live vaults so far. The lending loop alone earns more than the floor. With funding added, the vault earns about twice the floor.
 
 ## Who makes the choices
 

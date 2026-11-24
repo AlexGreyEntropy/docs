@@ -1,6 +1,6 @@
 ---
 title: "Safety and Risks"
-description: "Who holds your SOL, and what can still go wrong."
+description: "Who holds your SOL, what protects it, and what can still go wrong."
 ---
 
 ## Your own vault
@@ -15,13 +15,60 @@ During the private beta, each vault is a Privy <span className="term term-agenti
 - The vault can only use approved tokens and markets.
 - Payouts can only go to your Thaler wallet.
 
+## Principal protection
+
+Your principal is protected in dollar value. The <span className="term term-hedge" tabIndex={0}>hedge</span> keeps your deposit's dollar value steady when SOL goes up or down, so you do not lose dollar value on your deposit.
+
+Small gaps can still happen, for example if rates drop or funding turns negative for a while. These are covered by the insurance fund and the treasury. The insurance fund will be made public, with its address, after our funding round.
+
+## Yield floor
+
+Your vault has a guaranteed yield floor: a minimum yield it earns in any market, whether SOL pumps, dumps or does nothing. The floor is set about 3 times lower than what the strategy has earned so far. The lending loop alone earns more than the floor, and funding on top of it roughly doubles it. See [How It Works](/how-it-works#yield-floor).
+
+## Insurance fund and treasury
+
+All of Thaler's revenue goes to two places, each held in its own separate multisig wallet:
+
+| Fund | What it is for |
+|------|----------------|
+| Treasury | Thaler's revenue from fees. It pays for running the protocol |
+| Insurance fund | A backstop for depositors, like insurance on a car or a house. It covers small shortfalls in principal, and is there in case something goes wrong |
+
+The insurance fund is filled from fees, from the extra 1% on [Claim now](/yield#claim-now), and from our funding round. It will be made public, with its address, after the round.
+
+## Rules locked on-chain
+
+Vault actions are checked against fixed policies <span className="term term-on-chain" tabIndex={0}>on-chain</span>. The policies cannot be changed. If a transaction does not pass the policy check, it is rejected automatically, even if someone tries to push a harmful one.
+
+This also means the strategy is rule-based, not run by hand. You can check every action your vault takes on-chain.
+
+## Emergency exit
+
+If a market the vault uses is hacked or fails, an emergency policy unwinds every position and brings the funds back to your vault.
+
+We are adding live monitoring to trigger it, working with Ranger to spot problems at venues and alert the vault fast.
+
+## Staking token depeg
+
+Your vault borrows SOL against a staking token. The vault keeps its loan well below the point where the lending market would sell the collateral. Because of this gap, the staking token can lose about 14 to 15% of its value against SOL before the loan reaches <span className="term term-liquidation" tabIndex={0}>liquidation</span>.
+
+Even past that point, Kamino and Jupiter Lend first sell only part of the collateral to bring the loan back down, instead of closing it all.
+
+A depeg only affects vaults that hold that staking token. If a token your vault does not use loses value, your vault is not affected.
+
+## Audits
+
+Two security firms, [Adevar Labs](https://adevarlabs.com) and [Accretion](https://accretion.xyz), are auditing Thaler in parallel. They cover everything: the on-chain programs, the off-chain worker and backend, the integrations with other apps, and operational security.
+
+We aim to keep auditing on a regular schedule, the way Kamino does.
+
 ## Coming next
 
 | Step | Status |
 |------|--------|
-| Security <span className="term term-audit" tabIndex={0}>audit</span> by Adevar Labs and Accretion | Underway |
-| Move vaults to Squads <span className="term term-smart-account" tabIndex={0}>smart accounts</span>, with rules locked <span className="term term-on-chain" tabIndex={0}>on-chain</span> | After the audit |
-| A public on-chain reserve to back deposits | Planned |
+| Security <span className="term term-audit" tabIndex={0}>audit</span> by [Adevar Labs](https://adevarlabs.com) and [Accretion](https://accretion.xyz) | Underway |
+| Move vaults to Squads <span className="term term-smart-account" tabIndex={0}>smart accounts</span>, with rules locked on-chain | After the audit |
+| Live monitoring for the emergency exit | In progress |
 
 ## If something looks wrong
 
@@ -36,7 +83,7 @@ Thaler reduces risk but cannot remove all of it.
 | Risk | What could happen |
 |------|-------------------|
 | Other apps | Kamino, Jupiter Lend, a perpetual market or a staking provider is hacked or fails |
-| Staking tokens | A staking token loses value against SOL |
+| Staking tokens | A staking token loses more than about 14 to 15% against SOL |
 | Borrow costs | Borrowing costs more than staking earns for a long time |
 | Funding | Funding stays negative for a long time |
 | Fast rallies | A very sharp rise in SOL puts pressure on the hedge |
@@ -44,8 +91,6 @@ Thaler reduces risk but cannot remove all of it.
 | Solana | Network outages delay actions |
 | Your access | You lose access to your email or Thaler wallet |
 
-## Not guaranteed
-
-Your deposit, any return, and past results are not guaranteed. This is not financial advice.
+Past results do not promise future returns above the yield floor. This is not financial advice.
 
 The private beta is not open to residents of restricted countries.

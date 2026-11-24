@@ -38,10 +38,11 @@ Mintlify watches the local files and rebuilds on save. The dev server runs on `l
 - Title case for page titles and sidebar groups ("Create a Vault"). Sentence case for headings inside a page.
 - No buzzwords, no marketing copy, no AI terminology.
 - Do not publish strategy parameters, position sizes or operational thresholds.
+- Write percentages with no space: "11%", not "11 %". Write amounts in USDC or SOL, never with a `$` sign (Mintlify reads `$...$` as math).
 - All code blocks need a language tag.
 - All internal links use root-relative paths without file extensions: `/strategies/index`.
 - No live numbers (TVL, APR, vault counts, volume). They go stale. Link to the app at `app.thaler.finance` instead. Fixed history, like closed rounds and past events, is fine.
-- Do not describe the structural floor or principal safety as guarantees until the on-chain reserve is live.
+- The yield floor is guaranteed. Principal is protected (in dollar value), backed by the insurance fund and treasury; the insurance fund goes public after the funding round. Do not call principal guaranteed, and do not publish the yield floor number until the team confirms it.
 
 ## Publishing
 
