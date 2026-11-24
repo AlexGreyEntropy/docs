@@ -13,7 +13,7 @@ You need access to the private beta. Request it at [thaler.finance](https://thal
 2. **Add SOL to your <span className="term term-thaler-wallet" tabIndex={0}>Thaler wallet</span>.** It is created for you when you sign in. Send SOL to its address from any Solana <span className="term term-wallet" tabIndex={0}>wallet</span> or exchange.
 3. **Pick a <span className="term term-risk-profile" tabIndex={0}>risk profile</span>.**
 4. **Enter how much SOL** to put in.
-5. **Accept the terms and open the vault.**
+5. **Accept the terms and open the vault.** The terms include the [early close penalty](/closing).
 
 Your vault is ready in under 30 seconds. It then stakes, loops and hedges your SOL on its own.
 
@@ -31,9 +31,17 @@ The profiles differ in how much <span className="term term-leverage" tabIndex={0
 
 You pick the profile once. It cannot be changed later. To try another profile, open another vault.
 
+## Why there is a minimum and a maximum
+
+**Minimum 6 SOL.** Hedge profits are paid in USDC and swapped back to SOL. A swap only happens once there is at least 10 USDC to swap. With 2 SOL, each hedge profit was about 1.50 USDC, so the vault had to wait for 8 or 9 profits before it could swap once. With 6 SOL, each profit lands close to 10 USDC, so it swaps back to SOL much sooner.
+
+**Maximum 1,111 SOL per vault.** Some perpetual markets limit how much can be taken out at once. Pacifica allows 50,000 USDC every 24 hours, and Phoenix pays out in a queue of 400 USDC parts. Bullet has no limit. Capping each vault keeps closing it simple and safe within these limits.
+
 ## More than one vault
 
 Open as many vaults as you like, each with its own profile.
+
+To deposit more than 1,111 SOL, open several vaults. You can also open them at different times, for example a few during a rally.
 
 ## Adding more SOL
 
